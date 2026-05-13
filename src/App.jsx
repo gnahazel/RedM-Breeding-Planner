@@ -1481,7 +1481,7 @@ export default function App() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-amber-50 via-lime-50 to-emerald-50 px-4 py-8 text-stone-900">
+    <main className="min-h-screen bg-white px-4 py-8 text-stone-900">
       <div className="mx-auto grid max-w-7xl gap-6">
         <header className="rounded-3xl border border-amber-700 bg-gradient-to-r from-[#6f3f22] via-[#9b6a3d] to-[#d8b27c] p-6 text-white shadow-sm">
           <div className="flex flex-wrap items-start justify-between gap-4">
