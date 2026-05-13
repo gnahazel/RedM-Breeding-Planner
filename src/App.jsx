@@ -3,6 +3,319 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 const STORAGE_KEYS = {
   horses: "redm-breeding-planner-horses",
   pairings: "redm-breeding-planner-pairings",
+  language: "redm-breeding-planner-language",
+};
+
+const translations = {
+  de: {
+    appLabel: "RedM Stable Tool",
+    appTitle: "Breeding Planner",
+    appSubtitle:
+      "Pferde verwalten, Zuchttiere auswählen, Abstammungen vergleichen und riskante Verwandtschaften erkennen.",
+    switchLanguage: "English",
+    resetDemo: "Demo zurücksetzen",
+    resetDemoConfirm:
+      "Demo-Daten wirklich zurücksetzen? Deine aktuell gespeicherten Pferde und Pairings werden dadurch gelöscht.",
+
+    backupTitle: "Daten sichern & laden",
+    backupDescription:
+      "Exportiere Pferde und gespeicherte Pairings als CSV-Backup oder lade ein Backup wieder hoch.",
+    exportCsv: "CSV exportieren",
+    importCsv: "CSV importieren",
+    backupTip:
+      "Tipp: Vor größeren Änderungen einmal exportieren. Beim Import werden die aktuellen Browser-Daten ersetzt.",
+    emptyCsvError: "Die CSV-Datei enthält keine importierbaren Daten.",
+    invalidCsvError: (columns) =>
+      `Die CSV-Datei passt nicht zum Breeding Planner. Fehlende Spalten: ${columns}`,
+    importConfirm: (horseCount, pairingCount) =>
+      `CSV importieren?\n\nDadurch werden deine aktuellen Daten ersetzt.\n\nImport gefunden:\n- ${horseCount} Pferde\n- ${pairingCount} Pairing(s)`,
+    importSuccess: "Import erfolgreich. Deine Daten wurden ersetzt.",
+    importReadError: "Die Datei konnte nicht gelesen werden.",
+    importGenericError: "Die CSV-Datei konnte nicht importiert werden.",
+
+    plannerTitle: "Breeding Planner",
+    plannerDescription:
+      "Wähle verfügbare Zuchtpferde aus und prüfe automatisch die Abstammung.",
+    selectStallion: "Hengst auswählen",
+    selectMare: "Stute auswählen",
+    selectStallionPlaceholder: "Bitte Hengst wählen",
+    selectMarePlaceholder: "Bitte Stute wählen",
+    stallionPedigree: "Hengst-Abstammung",
+    marePedigree: "Stuten-Abstammung",
+    pairingNote: "Notiz zum Pairing",
+    pairingNotePlaceholder: "z. B. Ziel: Farbe, Linie, RP-Story, Temperament ...",
+    savePairing: "Pairing speichern",
+
+    relationshipNone: "Keine Verwandtschaft gefunden",
+    relationshipNoneMessage:
+      "Im geprüften Pedigree wurden keine gemeinsamen Vorfahren gefunden.",
+    relationshipVeryClose: "Sehr nahe Verwandtschaft",
+    relationshipVeryCloseMessage:
+      "Gemeinsame Elternteile wurden gefunden. Diese Paarung ist nicht empfohlen.",
+    relationshipClose: "Nahe Verwandtschaft",
+    relationshipCloseMessage: "Gemeinsame Vorfahren liegen sehr nah im Pedigree.",
+    relationshipDistant: "Entfernte Verwandtschaft",
+    relationshipDistantMessage:
+      "Es gibt gemeinsame Vorfahren, aber weiter hinten im Pedigree.",
+    relationshipVeryDistant: "Sehr entfernte Verwandtschaft",
+    relationshipVeryDistantMessage:
+      "Es gibt gemeinsame Vorfahren in späteren Generationen.",
+    sharedAncestorsOf: (stallion, mare) =>
+      `Gemeinsame Vorfahren von ${stallion} und ${mare}:`,
+    stallionGeneration: "beim Hengst",
+    mareGeneration: "bei der Stute",
+    generation: "Generation",
+    warning: "Warnung",
+    understood: "Verstanden",
+
+    horseDatabase: "Pferdedatenbank",
+    horseDatabaseDescription:
+      "Aufklappen, um Hengste, Stuten und weitere Pferde zu verwalten.",
+    open: "öffnen",
+    close: "schließen",
+    horsesCount: (count) => `${count} Pferde`,
+    stallions: "Hengste",
+    stallionsDescription: "Alle männlichen Zucht- und Archivpferde.",
+    mares: "Stuten",
+    maresDescription: "Alle weiblichen Zucht- und Archivpferde.",
+    others: "Wallache / Sonstige",
+    othersDescription: "Pferde, die nicht als Hengst oder Stute geführt werden.",
+    breedingHorses: "Zuchtpferde",
+    breedingHorsesDescription: "Pferde, die aktuell zur Zucht verfügbar sind.",
+    archiveHorses: "Archivpferde",
+    archiveHorsesDescription:
+      "Pferde, die nicht zur Zucht verfügbar sind oder nur für die Abstammung gespeichert werden.",
+    noHorsesInCategory: "In dieser Kategorie ist noch kein Pferd eingetragen.",
+    noHorsesHere: "Hier ist noch kein Pferd eingetragen.",
+
+    addHorse: "Pferd hinzufügen",
+    editHorse: "Pferd bearbeiten",
+    addHorseDescription:
+      "Lege Pferde mit Eltern, Geschlecht und Zuchtverfügbarkeit an.",
+    editHorseDescription:
+      "Ändere die Daten und speichere sie direkt in deiner Pferdedatenbank.",
+    cancel: "Abbrechen",
+    name: "Name",
+    namePlaceholder: "z. B. Moonshine Belle",
+    sex: "Geschlecht",
+    breed: "Rasse",
+    breedPlaceholder: "z. B. Turkoman",
+    color: "Farbe",
+    colorPlaceholder: "z. B. Buckskin",
+    genes: "Gene",
+    genesPlaceholder: "z. B. BL_G_D",
+    sire: "Vater",
+    dam: "Mutter",
+    unknown: "Unbekannt",
+    unknownLower: "unbekannt",
+    owner: "Besitzer:in",
+    ownerPlaceholder: "z. B. Gina",
+    notes: "Notizen",
+    notesPlaceholder: "z. B. RP-Linie, besondere Merkmale, Zuchtziel ...",
+    availableForBreeding: "Zur Zucht verfügbar",
+    availableBadge: "Zucht verfügbar",
+    unavailableBadge: "nicht verfügbar",
+    saveHorse: "Pferd speichern",
+    saveChanges: "Änderungen speichern",
+    edit: "Bearbeiten",
+    delete: "Löschen",
+    breedUnknown: "Rasse unbekannt",
+    colorUnknown: "Farbe unbekannt",
+    genesUnknown: "Gene unbekannt",
+    ownerUnknown: "unbekannt",
+    parentInfo: (sire, dam) => `Vater: ${sire} · Mutter: ${dam}`,
+    deleteHorseConfirm: (name, childrenCount, pairingsCount) => {
+      const lines = [`Möchtest du "${name}" wirklich löschen?`];
+      if (childrenCount > 0) {
+        lines.push(
+          `Das Pferd ist bei ${childrenCount} Pferd(en) als Elternteil eingetragen. Diese Eltern-Verknüpfung wird entfernt.`
+        );
+      }
+      if (pairingsCount > 0) {
+        lines.push(`${pairingsCount} gespeicherte Pairing(s) mit diesem Pferd werden gelöscht.`);
+      }
+      return lines.join("\n\n");
+    },
+
+    pairingsTitle: "Gespeicherte Pairings",
+    pairingsEmpty: "Noch keine Zuchtplanung gespeichert.",
+    pairingsDescription:
+      "Aus gespeicherten Pairings kannst du direkt ein Fohlen vorbereiten.",
+    createFoal: "Fohlen vorbereiten",
+    pairingSharedWarning:
+      "⚠️ Dieses Pairing hat gemeinsame Vorfahren im gespeicherten Check.",
+    plannedOn: "geplant am",
+    foalFrom: (stallion, mare) => `Fohlen von ${stallion} × ${mare}`,
+    autoFoalNote: (stallion, mare) =>
+      `Automatisch aus Pairing erstellt: ${stallion} × ${mare}`,
+
+    sexLabels: {
+      stallion: "Hengst",
+      mare: "Stute",
+      gelding: "Wallach",
+    },
+    statusLabels: {
+      planned: "geplant",
+      covered: "gedeckt",
+      pregnant: "trächtig",
+      born: "Fohlen geboren",
+      cancelled: "abgebrochen",
+    },
+  },
+  en: {
+    appLabel: "RedM Stable Tool",
+    appTitle: "Breeding Planner",
+    appSubtitle:
+      "Manage horses, select breeding animals, compare pedigrees, and detect risky relationships.",
+    switchLanguage: "Deutsch",
+    resetDemo: "Reset demo",
+    resetDemoConfirm:
+      "Reset demo data? Your currently saved horses and pairings will be deleted.",
+
+    backupTitle: "Save & Load Data",
+    backupDescription:
+      "Export horses and saved pairings as a CSV backup or upload a backup again.",
+    exportCsv: "Export CSV",
+    importCsv: "Import CSV",
+    backupTip:
+      "Tip: Export before making bigger changes. Importing replaces the current browser data.",
+    emptyCsvError: "The CSV file does not contain importable data.",
+    invalidCsvError: (columns) =>
+      `The CSV file does not match the Breeding Planner. Missing columns: ${columns}`,
+    importConfirm: (horseCount, pairingCount) =>
+      `Import CSV?\n\nThis will replace your current data.\n\nImport found:\n- ${horseCount} horses\n- ${pairingCount} pairing(s)`,
+    importSuccess: "Import successful. Your data has been replaced.",
+    importReadError: "The file could not be read.",
+    importGenericError: "The CSV file could not be imported.",
+
+    plannerTitle: "Breeding Planner",
+    plannerDescription:
+      "Select available breeding horses and automatically check their pedigree.",
+    selectStallion: "Select stallion",
+    selectMare: "Select mare",
+    selectStallionPlaceholder: "Please select a stallion",
+    selectMarePlaceholder: "Please select a mare",
+    stallionPedigree: "Stallion pedigree",
+    marePedigree: "Mare pedigree",
+    pairingNote: "Pairing note",
+    pairingNotePlaceholder: "e.g. goal: color, line, RP story, temperament ...",
+    savePairing: "Save pairing",
+
+    relationshipNone: "No relationship found",
+    relationshipNoneMessage:
+      "No shared ancestors were found in the checked pedigree.",
+    relationshipVeryClose: "Very close relationship",
+    relationshipVeryCloseMessage:
+      "Shared parents were found. This pairing is not recommended.",
+    relationshipClose: "Close relationship",
+    relationshipCloseMessage: "Shared ancestors are very close in the pedigree.",
+    relationshipDistant: "Distant relationship",
+    relationshipDistantMessage:
+      "There are shared ancestors, but further back in the pedigree.",
+    relationshipVeryDistant: "Very distant relationship",
+    relationshipVeryDistantMessage:
+      "There are shared ancestors in later generations.",
+    sharedAncestorsOf: (stallion, mare) =>
+      `Shared ancestors of ${stallion} and ${mare}:`,
+    stallionGeneration: "stallion side",
+    mareGeneration: "mare side",
+    generation: "generation",
+    warning: "Warning",
+    understood: "Understood",
+
+    horseDatabase: "Horse Database",
+    horseDatabaseDescription:
+      "Open this section to manage stallions, mares, and other horses.",
+    open: "open",
+    close: "close",
+    horsesCount: (count) => `${count} horses`,
+    stallions: "Stallions",
+    stallionsDescription: "All male breeding and archive horses.",
+    mares: "Mares",
+    maresDescription: "All female breeding and archive horses.",
+    others: "Geldings / Other",
+    othersDescription: "Horses not listed as stallions or mares.",
+    breedingHorses: "Breeding horses",
+    breedingHorsesDescription: "Horses currently available for breeding.",
+    archiveHorses: "Archive horses",
+    archiveHorsesDescription:
+      "Horses that are not available for breeding or are saved only for pedigree records.",
+    noHorsesInCategory: "No horse has been added to this category yet.",
+    noHorsesHere: "No horse has been added here yet.",
+
+    addHorse: "Add horse",
+    editHorse: "Edit horse",
+    addHorseDescription:
+      "Add horses with parents, sex, and breeding availability.",
+    editHorseDescription: "Change the data and save it directly to your horse database.",
+    cancel: "Cancel",
+    name: "Name",
+    namePlaceholder: "e.g. Moonshine Belle",
+    sex: "Sex",
+    breed: "Breed",
+    breedPlaceholder: "e.g. Turkoman",
+    color: "Color",
+    colorPlaceholder: "e.g. Buckskin",
+    genes: "Genes",
+    genesPlaceholder: "e.g. BL_G_D",
+    sire: "Sire",
+    dam: "Dam",
+    unknown: "Unknown",
+    unknownLower: "unknown",
+    owner: "Owner",
+    ownerPlaceholder: "e.g. Gina",
+    notes: "Notes",
+    notesPlaceholder: "e.g. RP line, special traits, breeding goal ...",
+    availableForBreeding: "Available for breeding",
+    availableBadge: "Breeding available",
+    unavailableBadge: "not available",
+    saveHorse: "Save horse",
+    saveChanges: "Save changes",
+    edit: "Edit",
+    delete: "Delete",
+    breedUnknown: "Unknown breed",
+    colorUnknown: "Unknown color",
+    genesUnknown: "Unknown genes",
+    ownerUnknown: "unknown",
+    parentInfo: (sire, dam) => `Sire: ${sire} · Dam: ${dam}`,
+    deleteHorseConfirm: (name, childrenCount, pairingsCount) => {
+      const lines = [`Do you really want to delete "${name}"?`];
+      if (childrenCount > 0) {
+        lines.push(
+          `This horse is listed as a parent for ${childrenCount} horse(s). That parent link will be removed.`
+        );
+      }
+      if (pairingsCount > 0) {
+        lines.push(`${pairingsCount} saved pairing(s) with this horse will be deleted.`);
+      }
+      return lines.join("\n\n");
+    },
+
+    pairingsTitle: "Saved Pairings",
+    pairingsEmpty: "No breeding plan has been saved yet.",
+    pairingsDescription:
+      "You can prepare a foal directly from saved pairings.",
+    createFoal: "Prepare foal",
+    pairingSharedWarning:
+      "⚠️ This pairing has shared ancestors in the saved check.",
+    plannedOn: "planned on",
+    foalFrom: (stallion, mare) => `Foal by ${stallion} × ${mare}`,
+    autoFoalNote: (stallion, mare) =>
+      `Automatically created from pairing: ${stallion} × ${mare}`,
+
+    sexLabels: {
+      stallion: "Stallion",
+      mare: "Mare",
+      gelding: "Gelding",
+    },
+    statusLabels: {
+      planned: "planned",
+      covered: "covered",
+      pregnant: "pregnant",
+      born: "foal born",
+      cancelled: "cancelled",
+    },
+  },
 };
 
 const demoHorses = [
@@ -12,6 +325,7 @@ const demoHorses = [
     sex: "stallion",
     breed: "Missouri Fox Trotter",
     color: "Silver Dapple Pinto",
+    genes: "BL_G_D",
     sireId: "h_005",
     damId: "h_006",
     availableForBreeding: true,
@@ -24,6 +338,7 @@ const demoHorses = [
     sex: "mare",
     breed: "Missouri Fox Trotter",
     color: "Palomino",
+    genes: "CH_E_A",
     sireId: "h_007",
     damId: "h_008",
     availableForBreeding: true,
@@ -36,6 +351,7 @@ const demoHorses = [
     sex: "stallion",
     breed: "Turkoman",
     color: "Dark Bay",
+    genes: "DB_A_N",
     sireId: "h_009",
     damId: "h_010",
     availableForBreeding: true,
@@ -48,6 +364,7 @@ const demoHorses = [
     sex: "mare",
     breed: "Turkoman",
     color: "Chestnut",
+    genes: "CH_R_Q",
     sireId: "h_005",
     damId: "h_011",
     availableForBreeding: true,
@@ -60,6 +377,7 @@ const demoHorses = [
     sex: "stallion",
     breed: "Missouri Fox Trotter",
     color: "Grey",
+    genes: "GR_O_T",
     sireId: null,
     damId: null,
     availableForBreeding: false,
@@ -72,6 +390,7 @@ const demoHorses = [
     sex: "mare",
     breed: "Missouri Fox Trotter",
     color: "Black",
+    genes: "BL_B_S",
     sireId: null,
     damId: null,
     availableForBreeding: false,
@@ -84,6 +403,7 @@ const demoHorses = [
     sex: "stallion",
     breed: "Missouri Fox Trotter",
     color: "Bay",
+    genes: "BY_R_B",
     sireId: null,
     damId: null,
     availableForBreeding: false,
@@ -96,6 +416,7 @@ const demoHorses = [
     sex: "mare",
     breed: "Missouri Fox Trotter",
     color: "Buckskin",
+    genes: "BK_L_M",
     sireId: null,
     damId: null,
     availableForBreeding: false,
@@ -108,6 +429,7 @@ const demoHorses = [
     sex: "stallion",
     breed: "Turkoman",
     color: "Black",
+    genes: "BL_B_J",
     sireId: null,
     damId: null,
     availableForBreeding: false,
@@ -120,6 +442,7 @@ const demoHorses = [
     sex: "mare",
     breed: "Turkoman",
     color: "Grullo",
+    genes: "GR_W_C",
     sireId: null,
     damId: null,
     availableForBreeding: false,
@@ -132,6 +455,7 @@ const demoHorses = [
     sex: "mare",
     breed: "Turkoman",
     color: "Sorrel",
+    genes: "SR_D_M",
     sireId: null,
     damId: null,
     availableForBreeding: false,
@@ -145,6 +469,7 @@ const emptyHorseForm = {
   sex: "mare",
   breed: "",
   color: "",
+  genes: "",
   sireId: "",
   damId: "",
   availableForBreeding: true,
@@ -152,19 +477,25 @@ const emptyHorseForm = {
   notes: "",
 };
 
-const sexLabels = {
-  stallion: "Hengst",
-  mare: "Stute",
-  gelding: "Wallach",
-};
-
-const statusLabels = {
-  planned: "geplant",
-  covered: "gedeckt",
-  pregnant: "trächtig",
-  born: "Fohlen geboren",
-  cancelled: "abgebrochen",
-};
+const BACKUP_COLUMNS = [
+  "recordType",
+  "id",
+  "name",
+  "sex",
+  "breed",
+  "color",
+  "genes",
+  "sireId",
+  "damId",
+  "availableForBreeding",
+  "owner",
+  "notes",
+  "stallionId",
+  "mareId",
+  "status",
+  "plannedDate",
+  "sharedAncestorIds",
+];
 
 function makeId(prefix) {
   if (typeof crypto !== "undefined" && crypto.randomUUID) {
@@ -186,25 +517,6 @@ function loadFromStorage(key, fallback) {
   }
 }
 
-const BACKUP_COLUMNS = [
-  "recordType",
-  "id",
-  "name",
-  "sex",
-  "breed",
-  "color",
-  "sireId",
-  "damId",
-  "availableForBreeding",
-  "owner",
-  "notes",
-  "stallionId",
-  "mareId",
-  "status",
-  "plannedDate",
-  "sharedAncestorIds",
-];
-
 function escapeCsvValue(value) {
   const text = value === null || value === undefined ? "" : String(value);
   const escaped = text.replaceAll('"', '""');
@@ -219,6 +531,7 @@ function makeBackupCsv(horses, pairings) {
     sex: horse.sex,
     breed: horse.breed,
     color: horse.color,
+    genes: horse.genes || "",
     sireId: horse.sireId || "",
     damId: horse.damId || "",
     availableForBreeding: horse.availableForBreeding ? "true" : "false",
@@ -238,6 +551,7 @@ function makeBackupCsv(horses, pairings) {
     sex: "",
     breed: "",
     color: "",
+    genes: "",
     sireId: "",
     damId: "",
     availableForBreeding: "",
@@ -322,17 +636,18 @@ function parseCsv(text) {
   return rows.filter((currentRow) => currentRow.some((cell) => cell.trim() !== ""));
 }
 
-function parseBackupCsv(text) {
+function parseBackupCsv(text, t) {
   const rows = parseCsv(text);
   if (rows.length < 2) {
-    throw new Error("Die CSV-Datei enthält keine importierbaren Daten.");
+    throw new Error(t.emptyCsvError);
   }
 
   const header = rows[0].map((cell) => cell.trim());
-  const missingColumns = BACKUP_COLUMNS.filter((column) => !header.includes(column));
+  const requiredBackupColumns = BACKUP_COLUMNS.filter((column) => column !== "genes");
+  const missingColumns = requiredBackupColumns.filter((column) => !header.includes(column));
 
   if (missingColumns.length > 0) {
-    throw new Error(`Die CSV-Datei passt nicht zum Breeding Planner. Fehlende Spalten: ${missingColumns.join(", ")}`);
+    throw new Error(t.invalidCsvError(missingColumns.join(", ")));
   }
 
   const records = rows.slice(1).map((row) => {
@@ -347,10 +662,11 @@ function parseBackupCsv(text) {
     .filter((record) => record.recordType === "horse")
     .map((record) => ({
       id: record.id || makeId("h"),
-      name: record.name || "Unbenanntes Pferd",
+      name: record.name || "Unnamed horse",
       sex: record.sex || "mare",
       breed: record.breed || "",
       color: record.color || "",
+      genes: record.genes || "",
       sireId: record.sireId || null,
       damId: record.damId || null,
       availableForBreeding: record.availableForBreeding === "true",
@@ -398,8 +714,8 @@ function getAncestors(horseId, horses, maxDepth = 5) {
     if (!horse) return;
 
     const parents = [
-      { id: horse.sireId, role: "Vater" },
-      { id: horse.damId, role: "Mutter" },
+      { id: horse.sireId, role: "sire" },
+      { id: horse.damId, role: "dam" },
     ];
 
     parents.forEach((parent) => {
@@ -433,7 +749,6 @@ function findSharedAncestors(stallionId, mareId, horses) {
 
   const stallionAncestors = getAncestors(stallionId, horses, 5);
   const mareAncestors = getAncestors(mareId, horses, 5);
-
   const sharedMap = new Map();
 
   stallionAncestors.forEach((stallionAncestor) => {
@@ -466,12 +781,12 @@ function findSharedAncestors(stallionId, mareId, horses) {
   }));
 }
 
-function getRiskLevel(sharedAncestors) {
+function getRiskLevel(sharedAncestors, t) {
   if (sharedAncestors.length === 0) {
     return {
-      label: "Keine Verwandtschaft gefunden",
+      label: t.relationshipNone,
       tone: "green",
-      message: "Im geprüften Pedigree wurden keine gemeinsamen Vorfahren gefunden.",
+      message: t.relationshipNoneMessage,
     };
   }
 
@@ -479,32 +794,32 @@ function getRiskLevel(sharedAncestors) {
 
   if (closest <= 1) {
     return {
-      label: "Sehr nahe Verwandtschaft",
+      label: t.relationshipVeryClose,
       tone: "red",
-      message: "Gemeinsame Elternteile wurden gefunden. Diese Paarung ist nicht empfohlen.",
+      message: t.relationshipVeryCloseMessage,
     };
   }
 
   if (closest <= 2) {
     return {
-      label: "Nahe Verwandtschaft",
+      label: t.relationshipClose,
       tone: "orange",
-      message: "Gemeinsame Vorfahren liegen sehr nah im Pedigree.",
+      message: t.relationshipCloseMessage,
     };
   }
 
   if (closest <= 4) {
     return {
-      label: "Entfernte Verwandtschaft",
+      label: t.relationshipDistant,
       tone: "yellow",
-      message: "Es gibt gemeinsame Vorfahren, aber weiter hinten im Pedigree.",
+      message: t.relationshipDistantMessage,
     };
   }
 
   return {
-    label: "Sehr entfernte Verwandtschaft",
+    label: t.relationshipVeryDistant,
     tone: "yellow",
-    message: "Es gibt gemeinsame Vorfahren in späteren Generationen.",
+    message: t.relationshipVeryDistantMessage,
   };
 }
 
@@ -520,7 +835,7 @@ function toneClasses(tone) {
   return map[tone] || map.neutral;
 }
 
-function HorseForm({ horses, editingHorse, onSaveHorse, onCancelEdit }) {
+function HorseForm({ horses, editingHorse, onSaveHorse, onCancelEdit, t }) {
   const [form, setForm] = useState(emptyHorseForm);
 
   useEffect(() => {
@@ -534,6 +849,7 @@ function HorseForm({ horses, editingHorse, onSaveHorse, onCancelEdit }) {
       sex: editingHorse.sex || "mare",
       breed: editingHorse.breed || "",
       color: editingHorse.color || "",
+      genes: editingHorse.genes || "",
       sireId: editingHorse.sireId || "",
       damId: editingHorse.damId || "",
       availableForBreeding: Boolean(editingHorse.availableForBreeding),
@@ -548,7 +864,6 @@ function HorseForm({ horses, editingHorse, onSaveHorse, onCancelEdit }) {
 
   function handleSubmit(event) {
     event.preventDefault();
-
     if (!form.name.trim()) return;
 
     const savedHorse = {
@@ -558,6 +873,7 @@ function HorseForm({ horses, editingHorse, onSaveHorse, onCancelEdit }) {
       name: form.name.trim(),
       breed: form.breed.trim(),
       color: form.color.trim(),
+      genes: form.genes.trim(),
       owner: form.owner.trim(),
       notes: form.notes.trim(),
       sireId: form.sireId || null,
@@ -580,12 +896,10 @@ function HorseForm({ horses, editingHorse, onSaveHorse, onCancelEdit }) {
       <div className="mb-4 flex items-start justify-between gap-4">
         <div>
           <h2 className="text-xl font-semibold text-stone-900">
-            {editingHorse ? "Pferd bearbeiten" : "Pferd hinzufügen"}
+            {editingHorse ? t.editHorse : t.addHorse}
           </h2>
           <p className="text-sm text-stone-500">
-            {editingHorse
-              ? "Ändere die Daten und speichere sie direkt in deiner Pferdedatenbank."
-              : "Lege Pferde mit Eltern, Geschlecht und Zuchtverfügbarkeit an."}
+            {editingHorse ? t.editHorseDescription : t.addHorseDescription}
           </p>
         </div>
 
@@ -595,63 +909,83 @@ function HorseForm({ horses, editingHorse, onSaveHorse, onCancelEdit }) {
             onClick={onCancelEdit}
             className="rounded-xl bg-stone-100 px-3 py-2 text-xs font-semibold text-stone-700 hover:bg-stone-200"
           >
-            Abbrechen
+            {t.cancel}
           </button>
         )}
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1 text-sm font-medium text-stone-700">
-          Name *
+          {t.name} *
           <input
             value={form.name}
             onChange={(event) => updateField("name", event.target.value)}
             className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
-            placeholder="z. B. Moonshine Belle"
+            placeholder={t.namePlaceholder}
           />
         </label>
 
         <label className="grid gap-1 text-sm font-medium text-stone-700">
-          Geschlecht
+          {t.sex}
           <select
             value={form.sex}
             onChange={(event) => updateField("sex", event.target.value)}
             className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
           >
-            <option value="stallion">Hengst</option>
-            <option value="mare">Stute</option>
-            <option value="gelding">Wallach</option>
+            <option value="stallion">{t.sexLabels.stallion}</option>
+            <option value="mare">{t.sexLabels.mare}</option>
+            <option value="gelding">{t.sexLabels.gelding}</option>
           </select>
         </label>
 
         <label className="grid gap-1 text-sm font-medium text-stone-700">
-          Rasse
+          {t.breed}
           <input
             value={form.breed}
             onChange={(event) => updateField("breed", event.target.value)}
             className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
-            placeholder="z. B. Turkoman"
+            placeholder={t.breedPlaceholder}
           />
         </label>
 
         <label className="grid gap-1 text-sm font-medium text-stone-700">
-          Farbe
+          {t.color}
           <input
             value={form.color}
             onChange={(event) => updateField("color", event.target.value)}
             className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
-            placeholder="z. B. Buckskin"
+            placeholder={t.colorPlaceholder}
           />
         </label>
 
         <label className="grid gap-1 text-sm font-medium text-stone-700">
-          Vater
+          {t.genes}
+          <input
+            value={form.genes}
+            onChange={(event) => updateField("genes", event.target.value)}
+            className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
+            placeholder={t.genesPlaceholder}
+          />
+        </label>
+
+        <label className="grid gap-1 text-sm font-medium text-stone-700">
+          {t.owner}
+          <input
+            value={form.owner}
+            onChange={(event) => updateField("owner", event.target.value)}
+            className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
+            placeholder={t.ownerPlaceholder}
+          />
+        </label>
+
+        <label className="grid gap-1 text-sm font-medium text-stone-700">
+          {t.sire}
           <select
             value={form.sireId}
             onChange={(event) => updateField("sireId", event.target.value)}
             className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
           >
-            <option value="">Unbekannt</option>
+            <option value="">{t.unknown}</option>
             {possibleSires.map((horse) => (
               <option key={horse.id} value={horse.id}>{horse.name}</option>
             ))}
@@ -659,27 +993,17 @@ function HorseForm({ horses, editingHorse, onSaveHorse, onCancelEdit }) {
         </label>
 
         <label className="grid gap-1 text-sm font-medium text-stone-700">
-          Mutter
+          {t.dam}
           <select
             value={form.damId}
             onChange={(event) => updateField("damId", event.target.value)}
             className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
           >
-            <option value="">Unbekannt</option>
+            <option value="">{t.unknown}</option>
             {possibleDams.map((horse) => (
               <option key={horse.id} value={horse.id}>{horse.name}</option>
             ))}
           </select>
-        </label>
-
-        <label className="grid gap-1 text-sm font-medium text-stone-700">
-          Besitzer:in
-          <input
-            value={form.owner}
-            onChange={(event) => updateField("owner", event.target.value)}
-            className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
-            placeholder="z. B. Gina"
-          />
         </label>
 
         <label className="flex items-center gap-2 rounded-xl border border-stone-200 px-3 py-2 text-sm font-medium text-stone-700">
@@ -689,28 +1013,28 @@ function HorseForm({ horses, editingHorse, onSaveHorse, onCancelEdit }) {
             onChange={(event) => updateField("availableForBreeding", event.target.checked)}
             className="h-4 w-4"
           />
-          Zur Zucht verfügbar
+          {t.availableForBreeding}
         </label>
       </div>
 
       <label className="mt-3 grid gap-1 text-sm font-medium text-stone-700">
-        Notizen
+        {t.notes}
         <textarea
           value={form.notes}
           onChange={(event) => updateField("notes", event.target.value)}
           className="min-h-20 rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
-          placeholder="z. B. RP-Linie, besondere Merkmale, Zuchtziel ..."
+          placeholder={t.notesPlaceholder}
         />
       </label>
 
       <button className="mt-4 rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-700">
-        {editingHorse ? "Änderungen speichern" : "Pferd speichern"}
+        {editingHorse ? t.saveChanges : t.saveHorse}
       </button>
     </form>
   );
 }
 
-function HorseList({ horses, onToggleAvailability, onEditHorse, onDeleteHorse }) {
+function HorseList({ horses, onToggleAvailability, onEditHorse, onDeleteHorse, t }) {
   const stallions = horses.filter((horse) => horse.sex === "stallion");
   const mares = horses.filter((horse) => horse.sex === "mare");
   const others = horses.filter((horse) => horse.sex !== "stallion" && horse.sex !== "mare");
@@ -720,49 +1044,54 @@ function HorseList({ horses, onToggleAvailability, onEditHorse, onDeleteHorse })
       <details open className="group">
         <summary className="flex cursor-pointer list-none items-start justify-between gap-4 rounded-xl bg-stone-50 px-4 py-3 transition hover:bg-stone-100">
           <div>
-            <h2 className="text-xl font-semibold text-stone-900">Pferdedatenbank</h2>
-            <p className="text-sm text-stone-500">Aufklappen, um Hengste, Stuten und weitere Pferde zu verwalten.</p>
+            <h2 className="text-xl font-semibold text-stone-900">{t.horseDatabase}</h2>
+            <p className="text-sm text-stone-500">{t.horseDatabaseDescription}</p>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="rounded-full bg-white px-3 py-1 text-sm text-stone-700 shadow-sm">{horses.length} Pferde</span>
-            <span className="text-sm font-semibold text-stone-500 group-open:hidden">öffnen</span>
-            <span className="hidden text-sm font-semibold text-stone-500 group-open:inline">schließen</span>
+            <span className="rounded-full bg-white px-3 py-1 text-sm text-stone-700 shadow-sm">
+              {t.horsesCount(horses.length)}
+            </span>
+            <span className="text-sm font-semibold text-stone-500 group-open:hidden">{t.open}</span>
+            <span className="hidden text-sm font-semibold text-stone-500 group-open:inline">{t.close}</span>
           </div>
         </summary>
 
         <div className="mt-4 grid gap-3">
           <HorseGroup
-            title="Hengste"
-            description="Alle männlichen Zucht- und Archivpferde."
+            title={t.stallions}
+            description={t.stallionsDescription}
             horses={stallions}
             allHorses={horses}
             onToggleAvailability={onToggleAvailability}
             onEditHorse={onEditHorse}
             onDeleteHorse={onDeleteHorse}
             defaultOpen
+            t={t}
           />
 
           <HorseGroup
-            title="Stuten"
-            description="Alle weiblichen Zucht- und Archivpferde."
+            title={t.mares}
+            description={t.maresDescription}
             horses={mares}
             allHorses={horses}
             onToggleAvailability={onToggleAvailability}
             onEditHorse={onEditHorse}
             onDeleteHorse={onDeleteHorse}
             defaultOpen
+            t={t}
           />
 
           {others.length > 0 && (
             <HorseGroup
-              title="Wallache / Sonstige"
-              description="Pferde, die nicht als Hengst oder Stute geführt werden."
+              title={t.others}
+              description={t.othersDescription}
               horses={others}
               allHorses={horses}
               onToggleAvailability={onToggleAvailability}
               onEditHorse={onEditHorse}
               onDeleteHorse={onDeleteHorse}
+              t={t}
             />
           )}
         </div>
@@ -780,6 +1109,7 @@ function HorseGroup({
   onEditHorse,
   onDeleteHorse,
   defaultOpen = false,
+  t,
 }) {
   const breedingHorses = horses.filter((horse) => horse.availableForBreeding);
   const archiveHorses = horses.filter((horse) => !horse.availableForBreeding);
@@ -802,29 +1132,31 @@ function HorseGroup({
       <div className="grid gap-3 border-t border-stone-100 p-4">
         {horses.length === 0 ? (
           <p className="rounded-xl border border-dashed border-stone-300 p-4 text-sm text-stone-500">
-            In dieser Kategorie ist noch kein Pferd eingetragen.
+            {t.noHorsesInCategory}
           </p>
         ) : (
           <>
             <HorseSubGroup
-              title="Zuchtpferde"
-              description="Pferde, die aktuell zur Zucht verfügbar sind."
+              title={t.breedingHorses}
+              description={t.breedingHorsesDescription}
               horses={breedingHorses}
               allHorses={allHorses}
               onToggleAvailability={onToggleAvailability}
               onEditHorse={onEditHorse}
               onDeleteHorse={onDeleteHorse}
               defaultOpen
+              t={t}
             />
 
             <HorseSubGroup
-              title="Archivpferde"
-              description="Pferde, die nicht zur Zucht verfügbar sind oder nur für die Abstammung gespeichert werden."
+              title={t.archiveHorses}
+              description={t.archiveHorsesDescription}
               horses={archiveHorses}
               allHorses={allHorses}
               onToggleAvailability={onToggleAvailability}
               onEditHorse={onEditHorse}
               onDeleteHorse={onDeleteHorse}
+              t={t}
             />
           </>
         )}
@@ -842,10 +1174,11 @@ function HorseSubGroup({
   onEditHorse,
   onDeleteHorse,
   defaultOpen = false,
+  t,
 }) {
   return (
     <details open={defaultOpen} className="group/sub rounded-xl border border-black bg-transparent">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-4 py-3 transition hover:bg-stone-100">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-4 py-3 transition hover:bg-stone-50">
         <div>
           <h4 className="font-semibold text-stone-800">{title}</h4>
           <p className="text-sm text-stone-500">{description}</p>
@@ -861,7 +1194,7 @@ function HorseSubGroup({
       <div className="border-t border-stone-200 p-4">
         {horses.length === 0 ? (
           <p className="rounded-xl border border-dashed border-stone-300 bg-white p-4 text-sm text-stone-500">
-            Hier ist noch kein Pferd eingetragen.
+            {t.noHorsesHere}
           </p>
         ) : (
           <div className="grid gap-3">
@@ -873,6 +1206,7 @@ function HorseSubGroup({
                 onToggleAvailability={onToggleAvailability}
                 onEditHorse={onEditHorse}
                 onDeleteHorse={onDeleteHorse}
+                t={t}
               />
             ))}
           </div>
@@ -882,7 +1216,7 @@ function HorseSubGroup({
   );
 }
 
-function HorseCard({ horse, horses, onToggleAvailability, onEditHorse, onDeleteHorse }) {
+function HorseCard({ horse, horses, onToggleAvailability, onEditHorse, onDeleteHorse, t }) {
   const sire = findHorse(horses, horse.sireId);
   const dam = findHorse(horses, horse.damId);
 
@@ -892,11 +1226,11 @@ function HorseCard({ horse, horses, onToggleAvailability, onEditHorse, onDeleteH
         <div>
           <h3 className="font-semibold text-stone-900">{horse.name}</h3>
           <p className="text-sm text-stone-500">
-            {sexLabels[horse.sex]} · {horse.breed || "Rasse unbekannt"} · {horse.color || "Farbe unbekannt"}
+            {t.sexLabels[horse.sex]} · {horse.breed || t.breedUnknown} · {horse.color || t.colorUnknown} · {horse.genes || t.genesUnknown}
           </p>
-          <p className="mt-1 text-xs text-stone-400">Besitzer:in: {horse.owner || "unbekannt"}</p>
+          <p className="mt-1 text-xs text-stone-400">{t.owner}: {horse.owner || t.ownerUnknown}</p>
           <p className="mt-1 text-xs text-stone-400">
-            Vater: {sire?.name || "unbekannt"} · Mutter: {dam?.name || "unbekannt"}
+            {t.parentInfo(sire?.name || t.unknownLower, dam?.name || t.unknownLower)}
           </p>
         </div>
 
@@ -909,21 +1243,21 @@ function HorseCard({ horse, horses, onToggleAvailability, onEditHorse, onDeleteH
                 : "bg-stone-100 text-stone-600"
             }`}
           >
-            {horse.availableForBreeding ? "Zucht verfügbar" : "nicht verfügbar"}
+            {horse.availableForBreeding ? t.availableBadge : t.unavailableBadge}
           </button>
 
           <button
             onClick={() => onEditHorse(horse)}
             className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-800 hover:bg-blue-100"
           >
-            Bearbeiten
+            {t.edit}
           </button>
 
           <button
             onClick={() => onDeleteHorse(horse)}
             className="rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-800 hover:bg-red-100"
           >
-            Löschen
+            {t.delete}
           </button>
         </div>
       </div>
@@ -933,7 +1267,7 @@ function HorseCard({ horse, horses, onToggleAvailability, onEditHorse, onDeleteH
   );
 }
 
-function HorseSelect({ label, value, onChange, horses, placeholder }) {
+function HorseSelect({ label, value, onChange, horses, placeholder, t }) {
   return (
     <label className="grid gap-1 text-sm font-medium text-stone-700">
       {label}
@@ -945,7 +1279,7 @@ function HorseSelect({ label, value, onChange, horses, placeholder }) {
         <option value="">{placeholder}</option>
         {horses.map((horse) => (
           <option key={horse.id} value={horse.id}>
-            {horse.name} · {horse.breed || "unbekannte Rasse"}
+            {horse.name} · {horse.breed || t.breedUnknown}
           </option>
         ))}
       </select>
@@ -953,25 +1287,27 @@ function HorseSelect({ label, value, onChange, horses, placeholder }) {
   );
 }
 
-function PedigreeTree({ horseId, horses, maxDepth = 4 }) {
+function PedigreeTree({ horseId, horses, maxDepth = 4, t }) {
   const horse = findHorse(horses, horseId);
 
   if (!horse) {
     return (
       <div className="rounded-xl border border-dashed border-stone-300 p-4 text-sm text-stone-500">
-        Noch kein Pferd ausgewählt.
+        {t.plannerTitle === "Breeding Planner" && t.switchLanguage === "English"
+          ? "Noch kein Pferd ausgewählt."
+          : "No horse selected yet."}
       </div>
     );
   }
 
   return (
     <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
-      <PedigreeNode horse={horse} horses={horses} depth={0} maxDepth={maxDepth} />
+      <PedigreeNode horse={horse} horses={horses} depth={0} maxDepth={maxDepth} t={t} />
     </div>
   );
 }
 
-function PedigreeNode({ horse, horses, depth, maxDepth }) {
+function PedigreeNode({ horse, horses, depth, maxDepth, t }) {
   if (!horse) return null;
 
   const sire = findHorse(horses, horse.sireId);
@@ -983,27 +1319,27 @@ function PedigreeNode({ horse, horses, depth, maxDepth }) {
       <div className="mb-2 rounded-lg bg-white px-3 py-2 shadow-sm">
         <p className="font-semibold text-stone-900">{horse.name}</p>
         <p className="text-xs text-stone-500">
-          {sexLabels[horse.sex]} · {horse.breed || "Rasse unbekannt"} · {horse.color || "Farbe unbekannt"}
+          {t.sexLabels[horse.sex]} · {horse.breed || t.breedUnknown} · {horse.color || t.colorUnknown} · {horse.genes || t.genesUnknown}
         </p>
       </div>
 
       {canGoDeeper && (
         <div className="grid gap-2">
           <div>
-            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-stone-400">Vater</p>
+            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-stone-400">{t.sire}</p>
             {sire ? (
-              <PedigreeNode horse={sire} horses={horses} depth={depth + 1} maxDepth={maxDepth} />
+              <PedigreeNode horse={sire} horses={horses} depth={depth + 1} maxDepth={maxDepth} t={t} />
             ) : (
-              <UnknownParent />
+              <UnknownParent t={t} />
             )}
           </div>
 
           <div>
-            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-stone-400">Mutter</p>
+            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-stone-400">{t.dam}</p>
             {dam ? (
-              <PedigreeNode horse={dam} horses={horses} depth={depth + 1} maxDepth={maxDepth} />
+              <PedigreeNode horse={dam} horses={horses} depth={depth + 1} maxDepth={maxDepth} t={t} />
             ) : (
-              <UnknownParent />
+              <UnknownParent t={t} />
             )}
           </div>
         </div>
@@ -1012,12 +1348,12 @@ function PedigreeNode({ horse, horses, depth, maxDepth }) {
   );
 }
 
-function UnknownParent() {
-  return <div className="ml-4 rounded-lg border border-dashed border-stone-300 px-3 py-2 text-sm text-stone-400">unbekannt</div>;
+function UnknownParent({ t }) {
+  return <div className="ml-4 rounded-lg border border-dashed border-stone-300 px-3 py-2 text-sm text-stone-400">{t.unknownLower}</div>;
 }
 
-function RelationshipWarning({ sharedAncestors, stallion, mare }) {
-  const risk = getRiskLevel(sharedAncestors);
+function RelationshipWarning({ sharedAncestors, stallion, mare, t }) {
+  const risk = getRiskLevel(sharedAncestors, t);
 
   return (
     <section className={`rounded-2xl border p-5 ${toneClasses(risk.tone)}`}>
@@ -1026,13 +1362,13 @@ function RelationshipWarning({ sharedAncestors, stallion, mare }) {
 
       {sharedAncestors.length > 0 && (
         <div className="mt-4">
-          <p className="text-sm font-semibold">Gemeinsame Vorfahren von {stallion.name} und {mare.name}:</p>
+          <p className="text-sm font-semibold">{t.sharedAncestorsOf(stallion.name, mare.name)}</p>
           <ul className="mt-2 grid gap-2 text-sm">
             {sharedAncestors.map((ancestor) => (
               <li key={ancestor.id} className="rounded-xl bg-white/70 px-3 py-2">
                 <strong>{ancestor.name}</strong>
                 <span className="block text-xs opacity-80">
-                  beim Hengst: Generation {ancestor.closestStallionGeneration} · bei der Stute: Generation {ancestor.closestMareGeneration}
+                  {t.stallionGeneration}: {t.generation} {ancestor.closestStallionGeneration} · {t.mareGeneration}: {t.generation} {ancestor.closestMareGeneration}
                 </span>
               </li>
             ))}
@@ -1043,16 +1379,16 @@ function RelationshipWarning({ sharedAncestors, stallion, mare }) {
   );
 }
 
-function RelationshipModal({ isOpen, onClose, sharedAncestors, stallion, mare }) {
+function RelationshipModal({ isOpen, onClose, sharedAncestors, stallion, mare, t }) {
   if (!isOpen || !stallion || !mare || sharedAncestors.length === 0) return null;
 
-  const risk = getRiskLevel(sharedAncestors);
+  const risk = getRiskLevel(sharedAncestors, t);
 
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4">
       <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
         <div className={`rounded-2xl border p-4 ${toneClasses(risk.tone)}`}>
-          <p className="text-sm font-semibold uppercase tracking-wide">Warnung</p>
+          <p className="text-sm font-semibold uppercase tracking-wide">{t.warning}</p>
           <h2 className="mt-1 text-2xl font-bold">{risk.label}</h2>
           <p className="mt-2 text-sm">{risk.message}</p>
         </div>
@@ -1066,7 +1402,7 @@ function RelationshipModal({ isOpen, onClose, sharedAncestors, stallion, mare })
               <li key={ancestor.id} className="rounded-xl bg-stone-100 px-3 py-2">
                 <strong>{ancestor.name}</strong>
                 <span className="block text-xs text-stone-500">
-                  Hengst: Gen. {ancestor.closestStallionGeneration} · Stute: Gen. {ancestor.closestMareGeneration}
+                  {t.stallionGeneration}: {t.generation} {ancestor.closestStallionGeneration} · {t.mareGeneration}: {t.generation} {ancestor.closestMareGeneration}
                 </span>
               </li>
             ))}
@@ -1077,14 +1413,14 @@ function RelationshipModal({ isOpen, onClose, sharedAncestors, stallion, mare })
           onClick={onClose}
           className="mt-5 w-full rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-700"
         >
-          Verstanden
+          {t.understood}
         </button>
       </div>
     </div>
   );
 }
 
-function BreedingPlanner({ horses, onSavePairing }) {
+function BreedingPlanner({ horses, onSavePairing, t }) {
   const [stallionId, setStallionId] = useState("");
   const [mareId, setMareId] = useState("");
   const [notes, setNotes] = useState("");
@@ -1137,39 +1473,41 @@ function BreedingPlanner({ horses, onSavePairing }) {
   return (
     <section className="rounded-2xl border border-black bg-transparent p-5 shadow-sm">
       <div className="mb-4">
-        <h2 className="text-xl font-semibold text-stone-900">Breeding Planner</h2>
-        <p className="text-sm text-stone-500">Wähle verfügbare Zuchtpferde aus und prüfe automatisch die Abstammung.</p>
+        <h2 className="text-xl font-semibold text-stone-900">{t.plannerTitle}</h2>
+        <p className="text-sm text-stone-500">{t.plannerDescription}</p>
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
         <HorseSelect
-          label="Hengst auswählen"
+          label={t.selectStallion}
           value={stallionId}
           onChange={setStallionId}
           horses={availableStallions}
-          placeholder="Bitte Hengst wählen"
+          placeholder={t.selectStallionPlaceholder}
+          t={t}
         />
 
         <HorseSelect
-          label="Stute auswählen"
+          label={t.selectMare}
           value={mareId}
           onChange={setMareId}
           horses={availableMares}
-          placeholder="Bitte Stute wählen"
+          placeholder={t.selectMarePlaceholder}
+          t={t}
         />
       </div>
 
       {stallion && mare && (
         <div className="mt-5 grid gap-4">
-          <RelationshipWarning sharedAncestors={sharedAncestors} stallion={stallion} mare={mare} />
+          <RelationshipWarning sharedAncestors={sharedAncestors} stallion={stallion} mare={mare} t={t} />
 
           <label className="grid gap-1 text-sm font-medium text-stone-700">
-            Notiz zum Pairing
+            {t.pairingNote}
             <textarea
               value={notes}
               onChange={(event) => setNotes(event.target.value)}
               className="min-h-20 rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
-              placeholder="z. B. Ziel: Farbe, Linie, RP-Story, Temperament ..."
+              placeholder={t.pairingNotePlaceholder}
             />
           </label>
 
@@ -1177,20 +1515,20 @@ function BreedingPlanner({ horses, onSavePairing }) {
             onClick={handleSavePairing}
             className="w-fit rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-700"
           >
-            Pairing speichern
+            {t.savePairing}
           </button>
         </div>
       )}
 
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
         <div>
-          <h3 className="mb-2 font-semibold text-stone-900">Hengst-Abstammung</h3>
-          <PedigreeTree horseId={stallionId} horses={horses} />
+          <h3 className="mb-2 font-semibold text-stone-900">{t.stallionPedigree}</h3>
+          <PedigreeTree horseId={stallionId} horses={horses} t={t} />
         </div>
 
         <div>
-          <h3 className="mb-2 font-semibold text-stone-900">Stuten-Abstammung</h3>
-          <PedigreeTree horseId={mareId} horses={horses} />
+          <h3 className="mb-2 font-semibold text-stone-900">{t.marePedigree}</h3>
+          <PedigreeTree horseId={mareId} horses={horses} t={t} />
         </div>
       </div>
 
@@ -1200,17 +1538,18 @@ function BreedingPlanner({ horses, onSavePairing }) {
         sharedAncestors={sharedAncestors}
         stallion={stallion}
         mare={mare}
+        t={t}
       />
     </section>
   );
 }
 
-function PairingList({ pairings, horses, onCreateFoal }) {
+function PairingList({ pairings, horses, onCreateFoal, t }) {
   if (pairings.length === 0) {
     return (
       <section className="rounded-2xl border border-black bg-transparent p-5 shadow-sm">
-        <h2 className="text-xl font-semibold text-stone-900">Gespeicherte Pairings</h2>
-        <p className="mt-2 text-sm text-stone-500">Noch keine Zuchtplanung gespeichert.</p>
+        <h2 className="text-xl font-semibold text-stone-900">{t.pairingsTitle}</h2>
+        <p className="mt-2 text-sm text-stone-500">{t.pairingsEmpty}</p>
       </section>
     );
   }
@@ -1218,8 +1557,8 @@ function PairingList({ pairings, horses, onCreateFoal }) {
   return (
     <section className="rounded-2xl border border-black bg-transparent p-5 shadow-sm">
       <div className="mb-4">
-        <h2 className="text-xl font-semibold text-stone-900">Gespeicherte Pairings</h2>
-        <p className="text-sm text-stone-500">Aus gespeicherten Pairings kannst du direkt ein Fohlen vorbereiten.</p>
+        <h2 className="text-xl font-semibold text-stone-900">{t.pairingsTitle}</h2>
+        <p className="text-sm text-stone-500">{t.pairingsDescription}</p>
       </div>
 
       <div className="grid gap-3">
@@ -1230,12 +1569,12 @@ function PairingList({ pairings, horses, onCreateFoal }) {
           if (!stallion || !mare) return null;
 
           return (
-            <article key={pairing.id} className="rounded-xl border border-stone-200 p-4">
+            <article key={pairing.id} className="rounded-xl border border-black bg-transparent p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <h3 className="font-semibold text-stone-900">{stallion.name} × {mare.name}</h3>
                   <p className="text-sm text-stone-500">
-                    {statusLabels[pairing.status]} · geplant am {pairing.plannedDate}
+                    {t.statusLabels[pairing.status] || pairing.status} · {t.plannedOn} {pairing.plannedDate}
                   </p>
                 </div>
 
@@ -1243,7 +1582,7 @@ function PairingList({ pairings, horses, onCreateFoal }) {
                   onClick={() => onCreateFoal(pairing)}
                   className="rounded-xl bg-stone-100 px-3 py-2 text-xs font-semibold text-stone-800 hover:bg-stone-200"
                 >
-                  Fohlen vorbereiten
+                  {t.createFoal}
                 </button>
               </div>
 
@@ -1251,7 +1590,7 @@ function PairingList({ pairings, horses, onCreateFoal }) {
 
               {pairing.sharedAncestorIds.length > 0 && (
                 <p className="mt-3 rounded-xl bg-yellow-50 px-3 py-2 text-sm text-yellow-900">
-                  ⚠️ Dieses Pairing hat gemeinsame Vorfahren im gespeicherten Check.
+                  {t.pairingSharedWarning}
                 </p>
               )}
             </article>
@@ -1262,7 +1601,7 @@ function PairingList({ pairings, horses, onCreateFoal }) {
   );
 }
 
-function DataBackup({ horses, pairings, onImportBackup }) {
+function DataBackup({ horses, pairings, onImportBackup, t }) {
   const fileInputRef = useRef(null);
 
   function handleExport() {
@@ -1279,30 +1618,24 @@ function DataBackup({ horses, pairings, onImportBackup }) {
 
     reader.onload = () => {
       try {
-        const imported = parseBackupCsv(String(reader.result || ""));
+        const imported = parseBackupCsv(String(reader.result || ""), t);
         const confirmed = window.confirm(
-          `CSV importieren?
-
-Dadurch werden deine aktuellen Daten ersetzt.
-
-Import gefunden:
-- ${imported.horses.length} Pferde
-- ${imported.pairings.length} Pairing(s)`
+          t.importConfirm(imported.horses.length, imported.pairings.length)
         );
 
         if (!confirmed) return;
 
         onImportBackup(imported.horses, imported.pairings);
-        window.alert("Import erfolgreich. Deine Daten wurden ersetzt.");
+        window.alert(t.importSuccess);
       } catch (error) {
-        window.alert(error instanceof Error ? error.message : "Die CSV-Datei konnte nicht importiert werden.");
+        window.alert(error instanceof Error ? error.message : t.importGenericError);
       } finally {
         event.target.value = "";
       }
     };
 
     reader.onerror = () => {
-      window.alert("Die Datei konnte nicht gelesen werden.");
+      window.alert(t.importReadError);
       event.target.value = "";
     };
 
@@ -1313,10 +1646,8 @@ Import gefunden:
     <section className="rounded-2xl border border-yellow-300 bg-gradient-to-br from-yellow-100 via-amber-100 to-orange-100 p-5 shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 className="text-xl font-semibold text-stone-900">Daten sichern & laden</h2>
-          <p className="text-sm text-stone-500">
-            Exportiere Pferde und gespeicherte Pairings als CSV-Backup oder lade ein Backup wieder hoch.
-          </p>
+          <h2 className="text-xl font-semibold text-stone-900">{t.backupTitle}</h2>
+          <p className="text-sm text-stone-500">{t.backupDescription}</p>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -1324,14 +1655,14 @@ Import gefunden:
             onClick={handleExport}
             className="rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-700"
           >
-            CSV exportieren
+            {t.exportCsv}
           </button>
 
           <button
             onClick={() => fileInputRef.current?.click()}
             className="rounded-xl bg-stone-100 px-4 py-2 text-sm font-semibold text-stone-800 hover:bg-stone-200"
           >
-            CSV importieren
+            {t.importCsv}
           </button>
 
           <input
@@ -1345,7 +1676,7 @@ Import gefunden:
       </div>
 
       <p className="mt-3 rounded-xl bg-yellow-50 px-3 py-2 text-sm text-yellow-900">
-        Tipp: Vor größeren Änderungen einmal exportieren. Beim Import werden die aktuellen Browser-Daten ersetzt.
+        {t.backupTip}
       </p>
     </section>
   );
@@ -1355,6 +1686,9 @@ export default function App() {
   const [horses, setHorses] = useState(() => loadFromStorage(STORAGE_KEYS.horses, demoHorses));
   const [pairings, setPairings] = useState(() => loadFromStorage(STORAGE_KEYS.pairings, []));
   const [editingHorse, setEditingHorse] = useState(null);
+  const [language, setLanguage] = useState(() => localStorage.getItem(STORAGE_KEYS.language) || "de");
+
+  const t = translations[language] || translations.de;
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.horses, JSON.stringify(horses));
@@ -1363,6 +1697,10 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.pairings, JSON.stringify(pairings));
   }, [pairings]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.language, language);
+  }, [language]);
 
   function saveHorse(horseToSave) {
     setHorses((current) => {
@@ -1403,17 +1741,9 @@ export default function App() {
       (pairing) => pairing.stallionId === horseToDelete.id || pairing.mareId === horseToDelete.id
     ).length;
 
-    const warningLines = [
-      `Möchtest du "${horseToDelete.name}" wirklich löschen?`,
-      childrenCount > 0
-        ? `Das Pferd ist bei ${childrenCount} Pferd(en) als Elternteil eingetragen. Diese Eltern-Verknüpfung wird entfernt.`
-        : null,
-      pairingsCount > 0
-        ? `${pairingsCount} gespeicherte Pairing(s) mit diesem Pferd werden gelöscht.`
-        : null,
-    ].filter(Boolean);
-
-    const confirmed = window.confirm(warningLines.join("\n\n"));
+    const confirmed = window.confirm(
+      t.deleteHorseConfirm(horseToDelete.name, childrenCount, pairingsCount)
+    );
     if (!confirmed) return;
 
     setHorses((current) =>
@@ -1449,15 +1779,16 @@ export default function App() {
 
     const foal = {
       id: makeId("h"),
-      name: `Fohlen von ${stallion.name} × ${mare.name}`,
+      name: t.foalFrom(stallion.name, mare.name),
       sex: "mare",
       breed: mare.breed || stallion.breed || "",
       color: "",
+      genes: "",
       sireId: stallion.id,
       damId: mare.id,
       availableForBreeding: false,
       owner: mare.owner || stallion.owner || "",
-      notes: `Automatisch aus Pairing erstellt: ${stallion.name} × ${mare.name}`,
+      notes: t.autoFoalNote(stallion.name, mare.name),
     };
 
     setHorses((current) => [foal, ...current]);
@@ -1470,7 +1801,7 @@ export default function App() {
   }
 
   function resetDemoData() {
-    const confirmed = window.confirm("Demo-Daten wirklich zurücksetzen? Deine aktuell gespeicherten Pferde und Pairings werden dadurch gelöscht.");
+    const confirmed = window.confirm(t.resetDemoConfirm);
     if (!confirmed) return;
 
     setHorses(demoHorses);
@@ -1486,31 +1817,39 @@ export default function App() {
         <header className="rounded-3xl border border-amber-700 bg-gradient-to-r from-[#6f3f22] via-[#9b6a3d] to-[#d8b27c] p-6 text-white shadow-sm">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <p className="text-sm uppercase tracking-[0.25em] text-amber-100">RedM Stable Tool</p>
-              <h1 className="mt-2 text-3xl font-bold md:text-5xl">Breeding Planner</h1>
-              <p className="mt-3 max-w-2xl text-amber-50">
-                Pferde verwalten, Zuchttiere auswählen, Abstammungen vergleichen und riskante Verwandtschaften erkennen.
-              </p>
+              <p className="text-sm uppercase tracking-[0.25em] text-amber-100">{t.appLabel}</p>
+              <h1 className="mt-2 text-3xl font-bold md:text-5xl">{t.appTitle}</h1>
+              <p className="mt-3 max-w-2xl text-amber-50">{t.appSubtitle}</p>
             </div>
 
-            <button
-              onClick={resetDemoData}
-              className="rounded-xl border border-amber-200 bg-white/80 px-4 py-2 text-sm font-semibold text-stone-900 hover:bg-white"
-            >
-              Demo zurücksetzen
-            </button>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setLanguage(language === "de" ? "en" : "de")}
+                className="rounded-xl border border-amber-200 bg-white/80 px-4 py-2 text-sm font-semibold text-stone-900 hover:bg-white"
+              >
+                {t.switchLanguage}
+              </button>
+
+              <button
+                onClick={resetDemoData}
+                className="rounded-xl border border-amber-200 bg-white/80 px-4 py-2 text-sm font-semibold text-stone-900 hover:bg-white"
+              >
+                {t.resetDemo}
+              </button>
+            </div>
           </div>
         </header>
 
-        <DataBackup horses={horses} pairings={pairings} onImportBackup={importBackup} />
+        <DataBackup horses={horses} pairings={pairings} onImportBackup={importBackup} t={t} />
 
-        <BreedingPlanner horses={horses} onSavePairing={savePairing} />
+        <BreedingPlanner horses={horses} onSavePairing={savePairing} t={t} />
 
         <HorseList
           horses={horses}
           onToggleAvailability={toggleAvailability}
           onEditHorse={startEditingHorse}
           onDeleteHorse={deleteHorse}
+          t={t}
         />
 
         <div className="grid gap-6 xl:grid-cols-[1fr_1.1fr]">
@@ -1519,8 +1858,9 @@ export default function App() {
             editingHorse={editingHorse}
             onSaveHorse={saveHorse}
             onCancelEdit={() => setEditingHorse(null)}
+            t={t}
           />
-          <PairingList pairings={pairings} horses={horses} onCreateFoal={createFoalFromPairing} />
+          <PairingList pairings={pairings} horses={horses} onCreateFoal={createFoalFromPairing} t={t} />
         </div>
       </div>
     </main>
