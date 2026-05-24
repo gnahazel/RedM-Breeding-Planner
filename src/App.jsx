@@ -149,6 +149,19 @@ const translations = {
     autoFoalNote: (stallion, mare) =>
       `Automatisch aus Pairing erstellt: ${stallion} × ${mare}`,
 
+    pedigreeViewerTitle: "Stammbaum anzeigen",
+    pedigreeViewerDescription:
+      "Wähle ein Pferd aus und öffne eine visuelle Stammbaum-Ansicht.",
+    selectHorse: "Pferd auswählen",
+    selectHorsePlaceholder: "Bitte Pferd wählen",
+    showPedigree: "Stammbaum anzeigen",
+    hidePedigree: "Stammbaum ausblenden",
+    pedigreeHint:
+      "Tipp: Du kannst im Stammbaum horizontal scrollen, wenn mehr Generationen angezeigt werden.",
+    noPedigreeSelected: "Wähle ein Pferd aus, um den Stammbaum zu sehen.",
+    noHorseSelectedYet: "Noch kein Pferd ausgewählt.",
+    rootHorse: "Ausgewähltes Pferd",
+
     sexLabels: {
       stallion: "Hengst",
       mare: "Stute",
@@ -302,6 +315,19 @@ const translations = {
     foalFrom: (stallion, mare) => `Foal by ${stallion} × ${mare}`,
     autoFoalNote: (stallion, mare) =>
       `Automatically created from pairing: ${stallion} × ${mare}`,
+
+    pedigreeViewerTitle: "Pedigree Viewer",
+    pedigreeViewerDescription:
+      "Select a horse and open a visual pedigree view.",
+    selectHorse: "Select horse",
+    selectHorsePlaceholder: "Please select a horse",
+    showPedigree: "Show pedigree",
+    hidePedigree: "Hide pedigree",
+    pedigreeHint:
+      "Tip: You can scroll horizontally inside the pedigree if more generations are shown.",
+    noPedigreeSelected: "Select a horse to view its pedigree.",
+    noHorseSelectedYet: "No horse selected yet.",
+    rootHorse: "Selected horse",
 
     sexLabels: {
       stallion: "Stallion",
@@ -835,28 +861,30 @@ function toneClasses(tone) {
   return map[tone] || map.neutral;
 }
 
-function HorseForm({ horses, editingHorse, onSaveHorse, onCancelEdit, t }) {
+function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEdit, t }) {
   const [form, setForm] = useState(emptyHorseForm);
 
   useEffect(() => {
-    if (!editingHorse) {
+    const sourceHorse = editingHorse || prefillHorse;
+
+    if (!sourceHorse) {
       setForm(emptyHorseForm);
       return;
     }
 
     setForm({
-      name: editingHorse.name || "",
-      sex: editingHorse.sex || "mare",
-      breed: editingHorse.breed || "",
-      color: editingHorse.color || "",
-      genes: editingHorse.genes || "",
-      sireId: editingHorse.sireId || "",
-      damId: editingHorse.damId || "",
-      availableForBreeding: Boolean(editingHorse.availableForBreeding),
-      owner: editingHorse.owner || "",
-      notes: editingHorse.notes || "",
+      name: sourceHorse.name || "",
+      sex: sourceHorse.sex || "mare",
+      breed: sourceHorse.breed || "",
+      color: sourceHorse.color || "",
+      genes: sourceHorse.genes || "",
+      sireId: sourceHorse.sireId || "",
+      damId: sourceHorse.damId || "",
+      availableForBreeding: Boolean(sourceHorse.availableForBreeding),
+      owner: sourceHorse.owner || "",
+      notes: sourceHorse.notes || "",
     });
-  }, [editingHorse]);
+  }, [editingHorse, prefillHorse]);
 
   function updateField(field, value) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -892,13 +920,13 @@ function HorseForm({ horses, editingHorse, onSaveHorse, onCancelEdit, t }) {
   );
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-2xl border border-black bg-transparent p-5 shadow-sm">
-      <div className="mb-4 flex items-start justify-between gap-4">
+    <form onSubmit={handleSubmit} className="border border-black bg-transparent p-5 shadow-sm">
+      <div className="-mx-5 -mt-5 mb-5 flex items-start justify-between gap-4 border-b border-[#363542] bg-[#363542] px-5 py-4">
         <div>
-          <h2 className="text-xl font-semibold text-stone-900">
+          <h2 className="text-xl font-semibold text-white">
             {editingHorse ? t.editHorse : t.addHorse}
           </h2>
-          <p className="text-sm text-stone-500">
+          <p className="text-sm text-white">
             {editingHorse ? t.editHorseDescription : t.addHorseDescription}
           </p>
         </div>
@@ -907,7 +935,7 @@ function HorseForm({ horses, editingHorse, onSaveHorse, onCancelEdit, t }) {
           <button
             type="button"
             onClick={onCancelEdit}
-            className="rounded-xl bg-stone-100 px-3 py-2 text-xs font-semibold text-stone-700 hover:bg-stone-200"
+            className="rounded-xl bg-[#4f4d63] px-3 py-2 text-xs font-semibold text-white hover:bg-[#6a6885]"
           >
             {t.cancel}
           </button>
@@ -1027,7 +1055,7 @@ function HorseForm({ horses, editingHorse, onSaveHorse, onCancelEdit, t }) {
         />
       </label>
 
-      <button className="mt-4 rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-700">
+      <button className="mt-4 rounded-xl bg-[#4f4d63] px-4 py-2 text-sm font-semibold text-white hover:bg-[#6a6885]">
         {editingHorse ? t.saveChanges : t.saveHorse}
       </button>
     </form>
@@ -1040,24 +1068,22 @@ function HorseList({ horses, onToggleAvailability, onEditHorse, onDeleteHorse, t
   const others = horses.filter((horse) => horse.sex !== "stallion" && horse.sex !== "mare");
 
   return (
-    <section className="rounded-2xl border border-black bg-transparent p-5 shadow-sm">
-      <details open className="group">
-        <summary className="flex cursor-pointer list-none items-start justify-between gap-4 rounded-xl bg-stone-50 px-4 py-3 transition hover:bg-stone-100">
+    <section className="border border-black bg-transparent p-5 shadow-sm">
+      <div className="-mx-5 -mt-5 mb-5 flex items-start justify-between gap-4 border-b border-[#363542] bg-[#363542] px-5 py-4 text-white">
           <div>
-            <h2 className="text-xl font-semibold text-stone-900">{t.horseDatabase}</h2>
-            <p className="text-sm text-stone-500">{t.horseDatabaseDescription}</p>
+            <h2 className="text-xl font-semibold text-white">{t.horseDatabase}</h2>
+            <p className="text-sm text-white">{t.horseDatabaseDescription}</p>
           </div>
 
           <div className="flex items-center gap-3">
             <span className="rounded-full bg-white px-3 py-1 text-sm text-stone-700 shadow-sm">
               {t.horsesCount(horses.length)}
             </span>
-            <span className="text-sm font-semibold text-stone-500 group-open:hidden">{t.open}</span>
-            <span className="hidden text-sm font-semibold text-stone-500 group-open:inline">{t.close}</span>
           </div>
-        </summary>
+        </div>
 
-        <div className="mt-4 grid gap-3">
+
+        <div className="mt-4 grid items-start gap-4 md:grid-cols-2">
           <HorseGroup
             title={t.stallions}
             description={t.stallionsDescription}
@@ -1065,8 +1091,7 @@ function HorseList({ horses, onToggleAvailability, onEditHorse, onDeleteHorse, t
             allHorses={horses}
             onToggleAvailability={onToggleAvailability}
             onEditHorse={onEditHorse}
-            onDeleteHorse={onDeleteHorse}
-            defaultOpen
+            onDeleteHorse={onDeleteHorse}          
             t={t}
           />
 
@@ -1077,25 +1102,25 @@ function HorseList({ horses, onToggleAvailability, onEditHorse, onDeleteHorse, t
             allHorses={horses}
             onToggleAvailability={onToggleAvailability}
             onEditHorse={onEditHorse}
-            onDeleteHorse={onDeleteHorse}
-            defaultOpen
+            onDeleteHorse={onDeleteHorse}            
             t={t}
           />
 
           {others.length > 0 && (
-            <HorseGroup
-              title={t.others}
-              description={t.othersDescription}
-              horses={others}
-              allHorses={horses}
-              onToggleAvailability={onToggleAvailability}
-              onEditHorse={onEditHorse}
-              onDeleteHorse={onDeleteHorse}
-              t={t}
-            />
+            <div className="md:col-span-2">
+              <HorseGroup
+                title={t.others}
+                description={t.othersDescription}
+                horses={others}
+                allHorses={horses}
+                onToggleAvailability={onToggleAvailability}
+                onEditHorse={onEditHorse}
+                onDeleteHorse={onDeleteHorse}
+                t={t}
+              />
+            </div>
           )}
         </div>
-      </details>
     </section>
   );
 }
@@ -1115,19 +1140,17 @@ function HorseGroup({
   const archiveHorses = horses.filter((horse) => !horse.availableForBreeding);
 
   return (
-    <details open={defaultOpen} className="group rounded-2xl border border-black bg-transparent">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 transition hover:bg-stone-50">
+    <div className="border border-black bg-transparent">
+      <div className="flex items-center justify-between gap-3 border-b border-violet-200 bg-[#4f4d63] px-5 py-4 text-white">
         <div>
-          <h3 className="font-semibold text-stone-900">{title}</h3>
-          <p className="text-sm text-stone-500">{description}</p>
+          <h3 className="font-semibold text-white">{title}</h3>
+          <p className="text-sm text-white">{description}</p>
         </div>
 
         <div className="flex items-center gap-3">
           <span className="rounded-full bg-stone-100 px-3 py-1 text-sm text-stone-700">{horses.length}</span>
-          <span className="text-sm font-semibold text-stone-400 group-open:hidden">▼</span>
-          <span className="hidden text-sm font-semibold text-stone-400 group-open:inline">▲</span>
         </div>
-      </summary>
+      </div>
 
       <div className="grid gap-3 border-t border-stone-100 p-4">
         {horses.length === 0 ? (
@@ -1143,8 +1166,7 @@ function HorseGroup({
               allHorses={allHorses}
               onToggleAvailability={onToggleAvailability}
               onEditHorse={onEditHorse}
-              onDeleteHorse={onDeleteHorse}
-              defaultOpen
+              onDeleteHorse={onDeleteHorse}              
               t={t}
             />
 
@@ -1161,7 +1183,7 @@ function HorseGroup({
           </>
         )}
       </div>
-    </details>
+    </div>
   );
 }
 
@@ -1176,9 +1198,15 @@ function HorseSubGroup({
   defaultOpen = false,
   t,
 }) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+
   return (
-    <details open={defaultOpen} className="group/sub rounded-xl border border-black bg-transparent">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-4 py-3 transition hover:bg-stone-50">
+    <div className="relative bg-transparent">
+      <button
+        type="button"
+        onClick={() => setIsOpen((current) => !current)}
+        className="flex w-full items-center justify-between gap-3 rounded-xl border border-black bg-transparent px-5 py-4 text-left text-stone-900 transition hover:bg-stone-50"
+      >
         <div>
           <h4 className="font-semibold text-stone-800">{title}</h4>
           <p className="text-sm text-stone-500">{description}</p>
@@ -1186,33 +1214,40 @@ function HorseSubGroup({
 
         <div className="flex items-center gap-3">
           <span className="rounded-full bg-white px-3 py-1 text-sm text-stone-700 shadow-sm">{horses.length}</span>
-          <span className="text-sm font-semibold text-stone-400 group-open/sub:hidden">▼</span>
-          <span className="hidden text-sm font-semibold text-stone-400 group-open/sub:inline">▲</span>
+          <span className="text-sm font-semibold text-stone-500">{isOpen ? "▲" : "▼"}</span>
         </div>
-      </summary>
+      </button>
 
-      <div className="border-t border-stone-200 p-4">
-        {horses.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-stone-300 bg-white p-4 text-sm text-stone-500">
-            {t.noHorsesHere}
-          </p>
-        ) : (
-          <div className="grid gap-3">
-            {horses.map((horse) => (
-              <HorseCard
-                key={horse.id}
-                horse={horse}
-                horses={allHorses}
-                onToggleAvailability={onToggleAvailability}
-                onEditHorse={onEditHorse}
-                onDeleteHorse={onDeleteHorse}
-                t={t}
-              />
-            ))}
+      {isOpen && (
+        <div className="absolute left-0 right-0 top-full z-30 mt-2 rounded-xl border border-stone-300 bg-white shadow-lg">
+          <div className="flex justify-center py-2 text-stone-500">⌃</div>
+
+          <div className="max-h-80 overflow-y-auto px-3 pb-2 pr-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {horses.length === 0 ? (
+              <p className="rounded-xl border border-dashed border-stone-300 bg-white p-4 text-sm text-stone-500">
+                {t.noHorsesHere}
+              </p>
+            ) : (
+              <div className="grid gap-3">
+                {horses.map((horse) => (
+                  <HorseCard
+                    key={horse.id}
+                    horse={horse}
+                    horses={allHorses}
+                    onToggleAvailability={onToggleAvailability}
+                    onEditHorse={onEditHorse}
+                    onDeleteHorse={onDeleteHorse}
+                    t={t}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-        )}
-      </div>
-    </details>
+
+          <div className="flex justify-center py-2 text-stone-500">⌄</div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -1287,24 +1322,18 @@ function HorseSelect({ label, value, onChange, horses, placeholder, t }) {
   );
 }
 
-function PedigreeTree({ horseId, horses, maxDepth = 4, t }) {
+function PedigreeTree({ horseId, horses, t }) {
   const horse = findHorse(horses, horseId);
 
   if (!horse) {
     return (
       <div className="rounded-xl border border-dashed border-stone-300 p-4 text-sm text-stone-500">
-        {t.plannerTitle === "Breeding Planner" && t.switchLanguage === "English"
-          ? "Noch kein Pferd ausgewählt."
-          : "No horse selected yet."}
+        {t.noHorseSelectedYet}
       </div>
     );
   }
 
-  return (
-    <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
-      <PedigreeNode horse={horse} horses={horses} depth={0} maxDepth={maxDepth} t={t} />
-    </div>
-  );
+  return <VisualPedigreeChart horse={horse} horses={horses} t={t} />;
 }
 
 function PedigreeNode({ horse, horses, depth, maxDepth, t }) {
@@ -1471,10 +1500,10 @@ function BreedingPlanner({ horses, onSavePairing, t }) {
   }
 
   return (
-    <section className="rounded-2xl border border-black bg-transparent p-5 shadow-sm">
-      <div className="mb-4">
-        <h2 className="text-xl font-semibold text-stone-900">{t.plannerTitle}</h2>
-        <p className="text-sm text-stone-500">{t.plannerDescription}</p>
+    <section className="border border-black bg-transparent p-5 shadow-sm">
+      <div className="-mx-5 -mt-5 mb-5 border-b border-[#363542] bg-[#363542] px-5 py-4">
+        <h2 className="text-xl font-semibold text-white">{t.plannerTitle}</h2>
+        <p className="text-sm text-white">{t.plannerDescription}</p>
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
@@ -1513,7 +1542,7 @@ function BreedingPlanner({ horses, onSavePairing, t }) {
 
           <button
             onClick={handleSavePairing}
-            className="w-fit rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-700"
+            className="w-fit rounded-xl bg-[#4f4d63] px-4 py-2 text-sm font-semibold text-white hover:bg-[#6a6885]"
           >
             {t.savePairing}
           </button>
@@ -1523,12 +1552,24 @@ function BreedingPlanner({ horses, onSavePairing, t }) {
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
         <div>
           <h3 className="mb-2 font-semibold text-stone-900">{t.stallionPedigree}</h3>
-          <PedigreeTree horseId={stallionId} horses={horses} t={t} />
+          {stallion ? (
+            <VisualPedigreeChart horse={stallion} horses={horses} t={t} />
+          ) : (
+            <div className="rounded-xl border border-dashed border-stone-300 p-4 text-sm text-stone-500">
+              {t.noHorseSelectedYet}
+            </div>
+          )}
         </div>
 
         <div>
           <h3 className="mb-2 font-semibold text-stone-900">{t.marePedigree}</h3>
-          <PedigreeTree horseId={mareId} horses={horses} t={t} />
+          {mare ? (
+            <VisualPedigreeChart horse={mare} horses={horses} t={t} />
+          ) : (
+            <div className="rounded-xl border border-dashed border-stone-300 p-4 text-sm text-stone-500">
+              {t.noHorseSelectedYet}
+            </div>
+          )}
         </div>
       </div>
 
@@ -1547,18 +1588,20 @@ function BreedingPlanner({ horses, onSavePairing, t }) {
 function PairingList({ pairings, horses, onCreateFoal, t }) {
   if (pairings.length === 0) {
     return (
-      <section className="rounded-2xl border border-black bg-transparent p-5 shadow-sm">
-        <h2 className="text-xl font-semibold text-stone-900">{t.pairingsTitle}</h2>
-        <p className="mt-2 text-sm text-stone-500">{t.pairingsEmpty}</p>
+      <section className="border border-black bg-transparent p-5 shadow-sm">
+        <div className="-mx-5 -mt-5 mb-5 border-b border-[#363542] bg-[#363542] px-5 py-4">
+          <h2 className="text-xl font-semibold text-white">{t.pairingsTitle}</h2>
+          <p className="text-sm text-white">{t.pairingsEmpty}</p>
+        </div>
       </section>
     );
   }
 
   return (
-    <section className="rounded-2xl border border-black bg-transparent p-5 shadow-sm">
-      <div className="mb-4">
-        <h2 className="text-xl font-semibold text-stone-900">{t.pairingsTitle}</h2>
-        <p className="text-sm text-stone-500">{t.pairingsDescription}</p>
+    <section className="border border-black bg-transparent p-5 shadow-sm">
+      <div className="-mx-5 -mt-5 mb-5 border-b border-[#363542] bg-[#363542] px-5 py-4">
+        <h2 className="text-xl font-semibold text-white">{t.pairingsTitle}</h2>
+        <p className="text-sm text-white">{t.pairingsDescription}</p>
       </div>
 
       <div className="grid gap-3">
@@ -1598,6 +1641,235 @@ function PairingList({ pairings, horses, onCreateFoal, t }) {
         })}
       </div>
     </section>
+  );
+}
+
+function PedigreeViewer({ horses, t }) {
+  const [selectedHorseId, setSelectedHorseId] = useState("");
+  const [showPedigree, setShowPedigree] = useState(false);
+
+  const sortedHorses = useMemo(
+    () => [...horses].sort((first, second) => first.name.localeCompare(second.name)),
+    [horses]
+  );
+
+  const selectedHorse = findHorse(horses, selectedHorseId);
+
+  function handleSelect(horseId) {
+    setSelectedHorseId(horseId);
+    setShowPedigree(false);
+  }
+
+  return (
+    <section className="border border-black bg-transparent p-5 shadow-sm">
+      <div className="-mx-5 -mt-5 mb-5 border-b border-[#363542] bg-[#363542] px-5 py-4">
+        <h2 className="text-xl font-semibold text-white">{t.pedigreeViewerTitle}</h2>
+        <p className="text-sm text-white">{t.pedigreeViewerDescription}</p>
+      </div>
+
+      <div className="grid gap-3">
+        <PedigreeHorseDropdown
+          label={t.selectHorse}
+          value={selectedHorseId}
+          onChange={handleSelect}
+          horses={sortedHorses}
+          placeholder={t.selectHorsePlaceholder}
+          t={t}
+        />
+
+        <button
+          type="button"
+          disabled={!selectedHorse}
+          onClick={() => setShowPedigree((current) => !current)}
+          className="rounded-xl bg-[#4f4d63] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#6a6885] disabled:cursor-not-allowed disabled:bg-stone-300 disabled:text-stone-500"
+        >
+          {showPedigree ? t.hidePedigree : t.showPedigree}
+        </button>
+      </div>
+
+      {!selectedHorse && (
+        <p className="mt-4 rounded-xl border border-dashed border-stone-300 p-4 text-sm text-stone-500">
+          {t.noPedigreeSelected}
+        </p>
+      )}
+
+      {selectedHorse && showPedigree && (
+        <div className="mt-6">
+          <VisualPedigreeChart horse={selectedHorse} horses={horses} t={t} />
+          <p className="mt-3 text-xs text-stone-500">{t.pedigreeHint}</p>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function PedigreeHorseDropdown({ label, value, onChange, horses, placeholder, t }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const selectedHorse = findHorse(horses, value);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  function handleSelect(horseId) {
+    onChange(horseId);
+    setIsOpen(false);
+  }
+
+  return (
+    <div ref={dropdownRef} className="grid gap-1 text-sm font-medium text-stone-700">
+      <label>{label}</label>
+
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => setIsOpen((current) => !current)}
+          className="flex w-full items-center justify-between rounded-xl border border-stone-300 bg-white px-3 py-2 text-left font-normal outline-none transition hover:border-stone-500 focus:border-stone-900"
+        >
+          <span className={selectedHorse ? "text-stone-900" : "text-stone-400"}>
+            {selectedHorse
+              ? `${selectedHorse.name} (${t.sexLabels[selectedHorse.sex] || selectedHorse.sex})`
+              : placeholder}
+          </span>
+          <span className="text-stone-400">{isOpen ? "▲" : "▼"}</span>
+        </button>
+
+        {isOpen && (
+          <div className="absolute left-0 right-0 top-full z-40 mt-2 rounded-xl border border-stone-300 bg-white shadow-lg">
+            <div className="flex justify-center py-2 text-stone-500">⌃</div>
+
+            <div className="max-h-80 overflow-y-auto px-3 pb-2 pr-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {horses.length === 0 ? (
+                <p className="rounded-xl border border-dashed border-stone-300 p-4 text-sm text-stone-500">
+                  {t.noHorsesHere}
+                </p>
+              ) : (
+                <div className="grid gap-1">
+                  {horses.map((horse) => (
+                    <button
+                      key={horse.id}
+                      type="button"
+                      onClick={() => handleSelect(horse.id)}
+                      className={`rounded-lg px-3 py-2 text-left text-sm transition hover:bg-stone-100 ${
+                        value === horse.id ? "bg-stone-100 font-semibold text-stone-900" : "text-stone-800"
+                      }`}
+                    >
+                      <span className="block font-medium">{horse.name}</span>
+                      <span className="block text-xs text-stone-500">
+                        {t.sexLabels[horse.sex] || horse.sex}
+                        {horse.breed ? ` · ${horse.breed}` : ""}
+                        {horse.color ? ` · ${horse.color}` : ""}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-center py-2 text-stone-500">⌄</div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function buildPedigreeNodes(rootHorse, horses, maxDepth = 3) {
+  const maxRows = 2 ** maxDepth * 2;
+  const nodes = [];
+
+  function addNode(horse, depth, pathIndex, relation) {
+    const row = (pathIndex * 2 + 1) * 2 ** (maxDepth - depth);
+
+    nodes.push({
+      id: horse?.id || `unknown-${depth}-${pathIndex}`,
+      horse,
+      depth,
+      row,
+      relation,
+    });
+
+    if (!horse || depth >= maxDepth) return;
+
+    addNode(findHorse(horses, horse.sireId), depth + 1, pathIndex * 2, "sire");
+    addNode(findHorse(horses, horse.damId), depth + 1, pathIndex * 2 + 1, "dam");
+  }
+
+  addNode(rootHorse, 0, 0, "root");
+
+  return { nodes, maxRows, maxDepth };
+}
+
+function VisualPedigreeChart({ horse, horses, t }) {
+  const { nodes, maxRows, maxDepth } = buildPedigreeNodes(horse, horses, 3);
+
+  return (
+    <div className="border border-black bg-transparent p-4 shadow-sm">
+      <div className="overflow-x-auto pb-3 [scrollbar-width:thin]">
+        <div
+          className="relative grid min-w-[980px] gap-x-16 gap-y-2 px-4 py-4"
+          style={{
+            gridTemplateColumns: `repeat(${maxDepth + 1}, 210px)`,
+            gridTemplateRows: `repeat(${maxRows}, minmax(24px, auto))`,
+          }}
+        >
+          {nodes.map((node) => (
+            <PedigreeVisualCard key={node.id} node={node} t={t} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PedigreeVisualCard({ node, t }) {
+  const { horse, depth, row, relation } = node;
+  const relationLabel =
+    relation === "root" ? t.rootHorse : relation === "sire" ? t.sire : t.dam;
+
+  return (
+    <div
+      className="relative rounded-xl border border-stone-300 bg-white p-3 shadow-sm"
+      style={{ gridColumn: depth + 1, gridRow: row }}
+    >
+      {depth > 0 && (
+        <span className="absolute -left-16 top-1/2 hidden w-16 border-t border-stone-400 md:block" />
+      )}
+
+      {horse ? (
+        <>
+          <h4 className="font-semibold text-stone-900">{horse.name}</h4>
+          <p className="mt-1 text-xs text-stone-500">{relationLabel}</p>
+          <dl className="mt-2 grid gap-1 text-xs text-stone-700">
+            <div>
+              <dt className="inline font-semibold">{t.color}: </dt>
+              <dd className="inline">{horse.color || t.colorUnknown}</dd>
+            </div>
+            <div>
+              <dt className="inline font-semibold">{t.breed}: </dt>
+              <dd className="inline">{horse.breed || t.breedUnknown}</dd>
+            </div>
+            <div>
+              <dt className="inline font-semibold">{t.genes}: </dt>
+              <dd className="inline">{horse.genes || t.genesUnknown}</dd>
+            </div>
+          </dl>
+        </>
+      ) : (
+        <>
+          <h4 className="font-semibold text-stone-400">{t.unknown}</h4>
+          <p className="mt-1 text-xs text-stone-400">{relationLabel}</p>
+        </>
+      )}
+    </div>
   );
 }
 
@@ -1643,8 +1915,8 @@ function DataBackup({ horses, pairings, onImportBackup, t }) {
   }
 
   return (
-    <section className="rounded-2xl border border-yellow-300 bg-gradient-to-br from-yellow-100 via-amber-100 to-orange-100 p-5 shadow-sm">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+    <section className="border border-[#A8CDAA] bg-[#A8CDAA] p-5 shadow-sm">
+      <div className="-mx-5 -mt-5 mb-4 flex flex-wrap items-start justify-between gap-4 border-b border-[#A8CDAA] bg-[#A8CDAA] px-5 py-4">
         <div>
           <h2 className="text-xl font-semibold text-stone-900">{t.backupTitle}</h2>
           <p className="text-sm text-stone-500">{t.backupDescription}</p>
@@ -1653,14 +1925,14 @@ function DataBackup({ horses, pairings, onImportBackup, t }) {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={handleExport}
-            className="rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-700"
+            className="rounded-xl bg-[#4f4d63] px-4 py-2 text-sm font-semibold text-white hover:bg-[#6a6885]"
           >
             {t.exportCsv}
           </button>
 
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="rounded-xl bg-stone-100 px-4 py-2 text-sm font-semibold text-stone-800 hover:bg-stone-200"
+            className="rounded-xl bg-[#4f4d63] px-4 py-2 text-sm font-semibold text-white hover:bg-[#6a6885]"
           >
             {t.importCsv}
           </button>
@@ -1675,7 +1947,7 @@ function DataBackup({ horses, pairings, onImportBackup, t }) {
         </div>
       </div>
 
-      <p className="mt-3 rounded-xl bg-yellow-50 px-3 py-2 text-sm text-yellow-900">
+      <p className="mt-3 rounded-xl bg-[#cbffd2] px-3 py-2 text-sm text-stone-900">
         {t.backupTip}
       </p>
     </section>
@@ -1686,6 +1958,7 @@ export default function App() {
   const [horses, setHorses] = useState(() => loadFromStorage(STORAGE_KEYS.horses, demoHorses));
   const [pairings, setPairings] = useState(() => loadFromStorage(STORAGE_KEYS.pairings, []));
   const [editingHorse, setEditingHorse] = useState(null);
+  const [prefillHorse, setPrefillHorse] = useState(null);
   const [language, setLanguage] = useState(() => localStorage.getItem(STORAGE_KEYS.language) || "de");
 
   const t = translations[language] || translations.de;
@@ -1716,6 +1989,7 @@ export default function App() {
     });
 
     setEditingHorse(null);
+    setPrefillHorse(null);
   }
 
   function toggleAvailability(horseId) {
@@ -1729,6 +2003,7 @@ export default function App() {
   }
 
   function startEditingHorse(horse) {
+    setPrefillHorse(null);
     setEditingHorse(horse);
     window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
   }
@@ -1771,15 +2046,17 @@ export default function App() {
     setPairings((current) => [pairing, ...current]);
   }
 
-  function createFoalFromPairing(pairing) {
+  function prepareFoalFromPairing(pairing) {
     const stallion = findHorse(horses, pairing.stallionId);
     const mare = findHorse(horses, pairing.mareId);
 
     if (!stallion || !mare) return;
 
-    const foal = {
-      id: makeId("h"),
-      name: t.foalFrom(stallion.name, mare.name),
+    setEditingHorse(null);
+
+    setPrefillHorse({
+      ...emptyHorseForm,
+      name: "",
       sex: "mare",
       breed: mare.breed || stallion.breed || "",
       color: "",
@@ -1788,16 +2065,17 @@ export default function App() {
       damId: mare.id,
       availableForBreeding: false,
       owner: mare.owner || stallion.owner || "",
-      notes: t.autoFoalNote(stallion.name, mare.name),
-    };
+      notes: "",
+    });
 
-    setHorses((current) => [foal, ...current]);
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
   }
 
   function importBackup(importedHorses, importedPairings) {
     setHorses(importedHorses);
     setPairings(importedPairings);
     setEditingHorse(null);
+    setPrefillHorse(null);
   }
 
   function resetDemoData() {
@@ -1807,6 +2085,7 @@ export default function App() {
     setHorses(demoHorses);
     setPairings([]);
     setEditingHorse(null);
+    setPrefillHorse(null);
     localStorage.removeItem(STORAGE_KEYS.horses);
     localStorage.removeItem(STORAGE_KEYS.pairings);
   }
@@ -1814,25 +2093,25 @@ export default function App() {
   return (
     <main className="min-h-screen bg-white px-4 py-8 text-stone-900">
       <div className="mx-auto grid max-w-7xl gap-6">
-        <header className="rounded-3xl border border-amber-700 bg-gradient-to-r from-[#6f3f22] via-[#9b6a3d] to-[#d8b27c] p-6 text-white shadow-sm">
+        <header className="border border-[#1e1d23] bg-[#1e1d23] p-6 text-white shadow-sm">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <p className="text-sm uppercase tracking-[0.25em] text-amber-100">{t.appLabel}</p>
+              <p className="text-sm uppercase tracking-[0.25em] text-white">{t.appLabel}</p>
               <h1 className="mt-2 text-3xl font-bold md:text-5xl">{t.appTitle}</h1>
-              <p className="mt-3 max-w-2xl text-amber-50">{t.appSubtitle}</p>
+              <p className="mt-3 max-w-2xl text-white">{t.appSubtitle}</p>
             </div>
 
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setLanguage(language === "de" ? "en" : "de")}
-                className="rounded-xl border border-amber-200 bg-white/80 px-4 py-2 text-sm font-semibold text-stone-900 hover:bg-white"
+                className="rounded-xl border border-[#1e1d23] bg-white/80 px-4 py-2 text-sm font-semibold text-stone-900 hover:bg-white"
               >
                 {t.switchLanguage}
               </button>
 
               <button
                 onClick={resetDemoData}
-                className="rounded-xl border border-amber-200 bg-white/80 px-4 py-2 text-sm font-semibold text-stone-900 hover:bg-white"
+                className="rounded-xl border border-[#1e1d23] bg-white/80 px-4 py-2 text-sm font-semibold text-stone-900 hover:bg-white"
               >
                 {t.resetDemo}
               </button>
@@ -1852,15 +2131,21 @@ export default function App() {
           t={t}
         />
 
+        <PedigreeViewer horses={horses} t={t} />
+
         <div className="grid gap-6 xl:grid-cols-[1fr_1.1fr]">
           <HorseForm
             horses={horses}
             editingHorse={editingHorse}
+            prefillHorse={prefillHorse}
             onSaveHorse={saveHorse}
-            onCancelEdit={() => setEditingHorse(null)}
-            t={t}
+            onCancelEdit={() => {
+              setEditingHorse(null);
+              setPrefillHorse(null);
+            }}
+          t={t}
           />
-          <PairingList pairings={pairings} horses={horses} onCreateFoal={createFoalFromPairing} t={t} />
+          <PairingList pairings={pairings} horses={horses} onCreateFoal={prepareFoalFromPairing} t={t} />
         </div>
       </div>
     </main>
