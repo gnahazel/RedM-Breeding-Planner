@@ -103,13 +103,18 @@ const translations = {
     color: "Farbe",
     colorPlaceholder: "z. B. Buckskin",
     genes: "Gene",
-    genesPlaceholder: "z. B. BL_G_D",
+    genesPlaceholder: "z. B. BL-G-D",
     sire: "Vater",
     dam: "Mutter",
     unknown: "Unbekannt",
     unknownLower: "unbekannt",
     owner: "Besitzer:in",
-    ownerPlaceholder: "z. B. Gina",
+    ownerPlaceholder: "z. B. Kira",
+    ownershipStatus: "Besitzstatus",
+    ownershipOwned: "In Besitz",
+    ownershipNotOwned: "Nicht mehr in Besitz",
+    notOwnedHorses: "Nicht mehr in Besitz",
+    notOwnedHorsesDescription: "Pferde, die nicht mehr in deinem Besitz sind.",
     notes: "Notizen",
     notesPlaceholder: "z. B. RP-Linie, besondere Merkmale, Zuchtziel ...",
     availableForBreeding: "Zur Zucht verfügbar",
@@ -270,13 +275,18 @@ const translations = {
     color: "Color",
     colorPlaceholder: "e.g. Buckskin",
     genes: "Genes",
-    genesPlaceholder: "e.g. BL_G_D",
+    genesPlaceholder: "e.g. BL-G-D",
     sire: "Sire",
     dam: "Dam",
     unknown: "Unknown",
     unknownLower: "unknown",
     owner: "Owner",
-    ownerPlaceholder: "e.g. Gina",
+    ownerPlaceholder: "e.g. Kira",
+    ownershipStatus: "Ownership status",
+    ownershipOwned: "Owned",
+    ownershipNotOwned: "No longer owned",
+    notOwnedHorses: "No longer owned",
+    notOwnedHorsesDescription: "Horses that are no longer in your ownership.",
     notes: "Notes",
     notesPlaceholder: "e.g. RP line, special traits, breeding goal ...",
     availableForBreeding: "Available for breeding",
@@ -351,10 +361,15 @@ const demoHorses = [
     sex: "stallion",
     breed: "Missouri Fox Trotter",
     color: "Silver Dapple Pinto",
-    genes: "BL_G_D",
+    genes: "BL-G-D",
+    geneBaseColor: "BL",
+    geneModifier1: "G",
+    geneModifier2: "",
+    genePattern: "D",
     sireId: "h_005",
     damId: "h_006",
     availableForBreeding: true,
+    ownershipStatus: "owned",
     owner: "TTR Ranch",
     notes: "Ruhige Showlinie",
   },
@@ -364,10 +379,15 @@ const demoHorses = [
     sex: "mare",
     breed: "Missouri Fox Trotter",
     color: "Palomino",
-    genes: "CH_E_A",
+    genes: "BL-G-CH-RN",
+    geneBaseColor: "BL",
+    geneModifier1: "G",
+    geneModifier2: "CH",
+    genePattern: "RN",
     sireId: "h_007",
     damId: "h_008",
     availableForBreeding: true,
+    ownershipStatus: "owned",
     owner: "Gina",
     notes: "Gute Mutterlinie",
   },
@@ -377,10 +397,15 @@ const demoHorses = [
     sex: "stallion",
     breed: "Turkoman",
     color: "Dark Bay",
-    genes: "DB_A_N",
+    genes: "R-FLX-CR-O",
+    geneBaseColor: "R",
+    geneModifier1: "FLX",
+    geneModifier2: "CR",
+    genePattern: "O",
     sireId: "h_009",
     damId: "h_010",
     availableForBreeding: true,
+    ownershipStatus: "owned",
     owner: "Valentine Stable",
     notes: "Kräftige Linie",
   },
@@ -390,10 +415,15 @@ const demoHorses = [
     sex: "mare",
     breed: "Turkoman",
     color: "Chestnut",
-    genes: "CH_R_Q",
+    genes: "B-P-CH-SB",
+    geneBaseColor: "B",
+    geneModifier1: "P",
+    geneModifier2: "CH",
+    genePattern: "SB",
     sireId: "h_005",
     damId: "h_011",
     availableForBreeding: true,
+    ownershipStatus: "owned",
     owner: "Emerald Ranch",
     notes: "Teilt Vater mit Silver King — Test für Warnung",
   },
@@ -403,10 +433,15 @@ const demoHorses = [
     sex: "stallion",
     breed: "Missouri Fox Trotter",
     color: "Grey",
-    genes: "GR_O_T",
+    genes: "BL",
+    geneBaseColor: "BL",
+    geneModifier1: "",
+    geneModifier2: "",
+    genePattern: "",
     sireId: null,
     damId: null,
     availableForBreeding: false,
+    ownershipStatus: "owned",
     owner: "Archiv",
     notes: "Foundation Sire",
   },
@@ -416,10 +451,15 @@ const demoHorses = [
     sex: "mare",
     breed: "Missouri Fox Trotter",
     color: "Black",
-    genes: "BL_B_S",
+    genes: "BL-P-G",
+    geneBaseColor: "BL",
+    geneModifier1: "P",
+    geneModifier2: "G",
+    genePattern: "",
     sireId: null,
     damId: null,
     availableForBreeding: false,
+    ownershipStatus: "owned",
     owner: "Archiv",
     notes: "Foundation Mare",
   },
@@ -429,10 +469,15 @@ const demoHorses = [
     sex: "stallion",
     breed: "Missouri Fox Trotter",
     color: "Bay",
-    genes: "BY_R_B",
+    genes: "B",
+    geneBaseColor: "B",
+    geneModifier1: "",
+    geneModifier2: "",
+    genePattern: "",
     sireId: null,
     damId: null,
     availableForBreeding: false,
+    ownershipStatus: "owned",
     owner: "Archiv",
     notes: "Foundation Sire",
   },
@@ -442,10 +487,15 @@ const demoHorses = [
     sex: "mare",
     breed: "Missouri Fox Trotter",
     color: "Buckskin",
-    genes: "BK_L_M",
+    genes: "R-CR-ZB",
+    geneBaseColor: "R",
+    geneModifier1: "CR",
+    geneModifier2: "",
+    genePattern: "ZB",
     sireId: null,
     damId: null,
     availableForBreeding: false,
+    ownershipStatus: "owned",
     owner: "Archiv",
     notes: "Foundation Mare",
   },
@@ -455,10 +505,15 @@ const demoHorses = [
     sex: "stallion",
     breed: "Turkoman",
     color: "Black",
-    genes: "BL_B_J",
+    genes: "BL-CH-D",
+    geneBaseColor: "BL",
+    geneModifier1: "CH",
+    geneModifier2: "",
+    genePattern: "D",
     sireId: null,
     damId: null,
     availableForBreeding: false,
+    ownershipStatus: "owned",
     owner: "Archiv",
     notes: "Foundation Sire",
   },
@@ -468,10 +523,15 @@ const demoHorses = [
     sex: "mare",
     breed: "Turkoman",
     color: "Grullo",
-    genes: "GR_W_C",
+    genes: "R-G-TO",
+    geneBaseColor: "R",
+    geneModifier1: "G",
+    geneModifier2: "",
+    genePattern: "TO",
     sireId: null,
     damId: null,
     availableForBreeding: false,
+    ownershipStatus: "owned",
     owner: "Archiv",
     notes: "Foundation Mare",
   },
@@ -481,14 +541,84 @@ const demoHorses = [
     sex: "mare",
     breed: "Turkoman",
     color: "Sorrel",
-    genes: "SR_D_M",
+    genes: "R-DW-G-RN",
+    geneBaseColor: "R",
+    geneModifier1: "DW",
+    geneModifier2: "G",
+    genePattern: "RN",
     sireId: null,
     damId: null,
     availableForBreeding: false,
+    ownershipStatus: "owned",
     owner: "Archiv",
     notes: "Foundation Mare",
   },
 ];
+
+const GENE_BASE_COLOR_OPTIONS = [
+  { value: "R", label: "Red/Chestnut (R)" },
+  { value: "BL", label: "Black (BL)" },
+  { value: "B", label: "Bay (B)" },
+];
+
+const GENE_MODIFIER_OPTIONS = ["FLX", "P", "CR", "CR2", "CH", "G", "DW", "M", "Z"];
+
+const GENE_PATTERN_OPTIONS = [
+  "ZB",
+  "LP",
+  "BK",
+  "SF",
+  "FSP",
+  "SB",
+  "TO",
+  "O",
+  "TOV",
+  "SW",
+  "RB",
+  "BR",
+  "D",
+  "RN",
+];
+
+function splitGeneCode(genes = "") {
+  const [baseColor = "", modifier1 = "", modifier2 = "", pattern = ""] = String(genes)
+    .split("-")
+    .map((part) => part.trim().toUpperCase());
+
+  return {
+    baseColor,
+    modifier1,
+    modifier2,
+    pattern,
+  };
+}
+
+function getHorseGeneParts(horse) {
+  if (!horse) {
+    return {
+      baseColor: "",
+      modifier1: "",
+      modifier2: "",
+      pattern: "",
+    };
+  }
+
+  const fallback = splitGeneCode(horse.genes);
+
+  return {
+    baseColor: horse.geneBaseColor || fallback.baseColor || "",
+    modifier1: horse.geneModifier1 || fallback.modifier1 || "",
+    modifier2: horse.geneModifier2 || fallback.modifier2 || "",
+    pattern: horse.genePattern || fallback.pattern || "",
+  };
+}
+
+function buildGeneCode({ geneBaseColor, geneModifier1, geneModifier2, genePattern }) {
+  return [geneBaseColor, geneModifier1, geneModifier2, genePattern]
+    .map((part) => String(part || "").trim().toUpperCase())
+    .filter(Boolean)
+    .join("-");
+}
 
 const emptyHorseForm = {
   name: "",
@@ -496,10 +626,14 @@ const emptyHorseForm = {
   breed: "",
   color: "",
   genes: "",
+  geneBaseColor: "",
+  geneModifier1: "",
+  geneModifier2: "",
+  genePattern: "",
   sireId: "",
   damId: "",
   availableForBreeding: true,
-  owner: "",
+  ownershipStatus: "owned",
   notes: "",
 };
 
@@ -511,9 +645,14 @@ const BACKUP_COLUMNS = [
   "breed",
   "color",
   "genes",
+  "geneBaseColor",
+  "geneModifier1",
+  "geneModifier2",
+  "genePattern",
   "sireId",
   "damId",
   "availableForBreeding",
+  "ownershipStatus",
   "owner",
   "notes",
   "stallionId",
@@ -558,9 +697,14 @@ function makeBackupCsv(horses, pairings) {
     breed: horse.breed,
     color: horse.color,
     genes: horse.genes || "",
+    geneBaseColor: horse.geneBaseColor || "",
+    geneModifier1: horse.geneModifier1 || "",
+    geneModifier2: horse.geneModifier2 || "",
+    genePattern: horse.genePattern || "",
     sireId: horse.sireId || "",
     damId: horse.damId || "",
     availableForBreeding: horse.availableForBreeding ? "true" : "false",
+    ownershipStatus: horse.ownershipStatus || "owned",
     owner: horse.owner,
     notes: horse.notes,
     stallionId: "",
@@ -578,9 +722,14 @@ function makeBackupCsv(horses, pairings) {
     breed: "",
     color: "",
     genes: "",
+    geneBaseColor: "",
+    geneModifier1: "",
+    geneModifier2: "",
+    genePattern: "",
     sireId: "",
     damId: "",
     availableForBreeding: "",
+    ownershipStatus: "",
     owner: "",
     notes: pairing.notes,
     stallionId: pairing.stallionId,
@@ -669,7 +818,17 @@ function parseBackupCsv(text, t) {
   }
 
   const header = rows[0].map((cell) => cell.trim());
-  const requiredBackupColumns = BACKUP_COLUMNS.filter((column) => column !== "genes");
+  const requiredBackupColumns = BACKUP_COLUMNS.filter(
+  (column) =>
+    ![
+      "genes",
+      "ownershipStatus",
+      "geneBaseColor",
+      "geneModifier1",
+      "geneModifier2",
+      "genePattern",
+    ].includes(column)
+);
   const missingColumns = requiredBackupColumns.filter((column) => !header.includes(column));
 
   if (missingColumns.length > 0) {
@@ -693,9 +852,14 @@ function parseBackupCsv(text, t) {
       breed: record.breed || "",
       color: record.color || "",
       genes: record.genes || "",
+      geneBaseColor: record.geneBaseColor || splitGeneCode(record.genes).baseColor,
+      geneModifier1: record.geneModifier1 || splitGeneCode(record.genes).modifier1,
+      geneModifier2: record.geneModifier2 || splitGeneCode(record.genes).modifier2,
+      genePattern: record.genePattern || splitGeneCode(record.genes).pattern,
       sireId: record.sireId || null,
       damId: record.damId || null,
       availableForBreeding: record.availableForBreeding === "true",
+      ownershipStatus: record.ownershipStatus || "owned",
       owner: record.owner || "",
       notes: record.notes || "",
     }));
@@ -878,9 +1042,14 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
       breed: sourceHorse.breed || "",
       color: sourceHorse.color || "",
       genes: sourceHorse.genes || "",
+      geneBaseColor: geneParts.baseColor,
+      geneModifier1: geneParts.modifier1,
+      geneModifier2: geneParts.modifier2,
+      genePattern: geneParts.pattern,
       sireId: sourceHorse.sireId || "",
       damId: sourceHorse.damId || "",
       availableForBreeding: Boolean(sourceHorse.availableForBreeding),
+      ownershipStatus: sourceHorse.ownershipStatus || "owned",
       owner: sourceHorse.owner || "",
       notes: sourceHorse.notes || "",
     });
@@ -890,9 +1059,43 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
     setForm((current) => ({ ...current, [field]: value }));
   }
 
+  function selectedModifiers() {
+  return [form.geneModifier1, form.geneModifier2].filter(Boolean);
+  }
+
+  function toggleModifier(modifier) {
+    const current = selectedModifiers();
+
+    if (current.includes(modifier)) {
+      const next = current.filter((item) => item !== modifier);
+      setForm((previous) => ({
+        ...previous,
+        geneModifier1: next[0] || "",
+        geneModifier2: next[1] || "",
+      }));
+      return;
+    }
+
+    const next = [...current, modifier].slice(0, 2);
+
+    setForm((previous) => ({
+      ...previous,
+      geneModifier1: next[0] || "",
+      geneModifier2: next[1] || "",
+    }));
+  }
+
+  function togglePattern(pattern) {
+    setForm((previous) => ({
+      ...previous,
+      genePattern: previous.genePattern === pattern ? "" : pattern,
+    }));
+  }
+
   function handleSubmit(event) {
     event.preventDefault();
-    if (!form.name.trim()) return;
+    if (!form.name.trim() || !form.geneBaseColor.trim()) return;
+    const genes = buildGeneCode(form);
 
     const savedHorse = {
       ...(editingHorse || {}),
@@ -901,7 +1104,11 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
       name: form.name.trim(),
       breed: form.breed.trim(),
       color: form.color.trim(),
-      genes: form.genes.trim(),
+      genes,
+      geneBaseColor: form.geneBaseColor.trim().toUpperCase(),
+      geneModifier1: form.geneModifier1.trim().toUpperCase(),
+      geneModifier2: form.geneModifier2.trim().toUpperCase(),
+      genePattern: form.genePattern.trim().toUpperCase(),
       owner: form.owner.trim(),
       notes: form.notes.trim(),
       sireId: form.sireId || null,
@@ -986,15 +1193,84 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
           />
         </label>
 
+        <div className="grid gap-3 md:col-span-2">
+
         <label className="grid gap-1 text-sm font-medium text-stone-700">
-          {t.genes}
-          <input
-            value={form.genes}
-            onChange={(event) => updateField("genes", event.target.value)}
-            className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
-            placeholder={t.genesPlaceholder}
-          />
+          Base Color *
+          <select
+            value={form.geneBaseColor}
+            onChange={(event) => updateField("geneBaseColor", event.target.value)}
+            className="rounded-xl border border-stone-300 bg-white px-3 py-2 font-normal outline-none focus:border-stone-900"
+            required
+          >
+            <option value="">Select base</option>
+            {GENE_BASE_COLOR_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </label>
+
+        <div className="grid gap-2">
+          <p className="text-sm font-medium text-stone-700">Modifiers optional</p>
+
+          <div className="flex flex-wrap gap-2">
+            {GENE_MODIFIER_OPTIONS.map((modifier) => {
+              const isSelected = selectedModifiers().includes(modifier);
+
+              return (
+                <button
+                  key={modifier}
+                  type="button"
+                  onClick={() => toggleModifier(modifier)}
+                  className={`rounded-lg border px-3 py-1 text-sm font-medium transition ${
+                    isSelected
+                      ? "border-[#4f4d63] bg-[#4f4d63] text-white"
+                      : "border-stone-300 bg-white text-stone-700 hover:bg-stone-100"
+                  }`}
+                >
+                  {modifier}
+                </button>
+              );
+            })}
+          </div>
+
+          <p className="text-xs text-stone-500">
+            Maximal zwei Modifier werden als Modifier 1 und Modifier 2 gespeichert.
+          </p>
+        </div>
+
+        <div className="grid gap-2">
+          <p className="text-sm font-medium text-stone-700">Pattern optional</p>
+
+          <div className="flex flex-wrap gap-2">
+            {GENE_PATTERN_OPTIONS.map((pattern) => {
+              const isSelected = form.genePattern === pattern;
+
+              return (
+                <button
+                  key={pattern}
+                  type="button"
+                  onClick={() => togglePattern(pattern)}
+                  className={`rounded-lg border px-3 py-1 text-sm font-medium transition ${
+                    isSelected
+                      ? "border-[#4f4d63] bg-[#4f4d63] text-white"
+                      : "border-stone-300 bg-white text-stone-700 hover:bg-stone-100"
+                  }`}
+                >
+                {pattern}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-700">
+          Gespeicherter Gen-Code:{" "}
+          <strong>{buildGeneCode(form) || "—"}</strong>
+        </div>
+      </div>
 
         <label className="grid gap-1 text-sm font-medium text-stone-700">
           {t.owner}
@@ -1044,6 +1320,18 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
           {t.availableForBreeding}
         </label>
       </div>
+
+      <label className="grid gap-1 text-sm font-medium text-stone-700">
+        {t.ownershipStatus}
+        <select
+          value={form.ownershipStatus}
+          onChange={(event) => updateField("ownershipStatus", event.target.value)}
+          className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
+        >
+          <option value="owned">{t.ownershipOwned}</option>
+          <option value="notOwned">{t.ownershipNotOwned}</option>
+        </select>
+      </label>
 
       <label className="mt-3 grid gap-1 text-sm font-medium text-stone-700">
         {t.notes}
@@ -1136,8 +1424,11 @@ function HorseGroup({
   defaultOpen = false,
   t,
 }) {
-  const breedingHorses = horses.filter((horse) => horse.availableForBreeding);
-  const archiveHorses = horses.filter((horse) => !horse.availableForBreeding);
+  const ownedHorses = horses.filter((horse) => (horse.ownershipStatus || "owned") === "owned");
+  const notOwnedHorses = horses.filter((horse) => horse.ownershipStatus === "notOwned");
+
+  const breedingHorses = ownedHorses.filter((horse) => horse.availableForBreeding);
+  const archiveHorses = ownedHorses.filter((horse) => !horse.availableForBreeding);
 
   return (
     <div className="border border-black bg-transparent">
@@ -1180,6 +1471,17 @@ function HorseGroup({
               onDeleteHorse={onDeleteHorse}
               t={t}
             />
+
+            <HorseSubGroup
+              title={t.notOwnedHorses}
+              description={t.notOwnedHorsesDescription}
+              horses={notOwnedHorses}
+              allHorses={allHorses}
+              onToggleAvailability={onToggleAvailability}
+              onEditHorse={onEditHorse}
+              onDeleteHorse={onDeleteHorse}
+              t={t}
+              />
           </>
         )}
       </div>
@@ -1303,22 +1605,203 @@ function HorseCard({ horse, horses, onToggleAvailability, onEditHorse, onDeleteH
 }
 
 function HorseSelect({ label, value, onChange, horses, placeholder, t }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [breedFilter, setBreedFilter] = useState("");
+  const [geneFilters, setGeneFilters] = useState(["", "", "", ""]);
+  const dropdownRef = useRef(null);
+
+  const selectedHorse = findHorse(horses, value);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  function getGeneFilterParts(horse) {
+    const parts = getHorseGeneParts(horse);
+
+    return [
+      parts.baseColor,
+      parts.modifier1,
+      parts.modifier2,
+      parts.pattern,
+    ];
+  }
+
+  const breedOptions = useMemo(() => {
+    return Array.from(
+      new Set(horses.map((horse) => horse.breed).filter(Boolean))
+    ).sort();
+  }, [horses]);
+
+  const geneOptionsByPosition = useMemo(() => {
+    return [0, 1, 2, 3].map((position) =>
+      Array.from(
+        new Set(
+          horses
+            .map((horse) => getGeneFilterParts(horse)[position])
+            .filter(Boolean)
+        )
+      ).sort()
+    );
+  }, [horses]);
+
+  const filteredHorses = useMemo(() => {
+    return horses.filter((horse) => {
+      const horseGenes = getGeneFilterParts(horse);
+
+      const matchesBreed =
+        !breedFilter || horse.breed === breedFilter;
+
+      const matchesGenes = geneFilters.every((filterValue, index) => {
+        if (!filterValue) return true;
+        return horseGenes[index] === filterValue;
+      });
+
+      return matchesBreed && matchesGenes;
+    });
+  }, [horses, breedFilter, geneFilters]);
+
+  function updateGeneFilter(index, value) {
+    setGeneFilters((current) =>
+      current.map((filter, currentIndex) =>
+        currentIndex === index ? value : filter
+      )
+    );
+  }
+
+  function resetFilters() {
+    setBreedFilter("");
+    setGeneFilters(["", "", "", ""]);
+  }
+
+  function resetSelection() {
+    onChange("");
+    setIsOpen(false);
+  }
+
+  function handleSelect(horseId) {
+    onChange(horseId);
+    setIsOpen(false);
+  }
+
   return (
-    <label className="grid gap-1 text-sm font-medium text-stone-700">
-      {label}
-      <select
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="rounded-xl border border-stone-300 bg-white px-3 py-2 font-normal outline-none focus:border-stone-900"
-      >
-        <option value="">{placeholder}</option>
-        {horses.map((horse) => (
-          <option key={horse.id} value={horse.id}>
-            {horse.name} · {horse.breed || t.breedUnknown}
-          </option>
-        ))}
-      </select>
-    </label>
+    <div ref={dropdownRef} className="grid gap-1 text-sm font-medium text-stone-700">
+      <label>{label}</label>
+
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => setIsOpen((current) => !current)}
+          className="flex w-full items-center justify-between rounded-xl border border-stone-300 bg-white px-3 py-2 text-left font-normal outline-none transition hover:border-stone-500 focus:border-stone-900"
+        >
+          <span className={selectedHorse ? "text-stone-900" : "text-stone-400"}>
+            {selectedHorse
+              ? `${selectedHorse.name} · ${selectedHorse.breed || t.breedUnknown} · ${selectedHorse.genes || t.genesUnknown}`
+              : placeholder}
+          </span>
+          <span className="text-stone-400">{isOpen ? "▲" : "▼"}</span>
+        </button>
+
+        {isOpen && (
+          <div className="absolute left-0 right-0 top-full z-40 mt-2 rounded-xl border border-stone-300 bg-white shadow-lg">
+            <div className="grid gap-3 border-b border-stone-200 p-3">
+              <label className="grid gap-1 text-xs font-semibold text-stone-600">
+                Rasse filtern
+                <select
+                  value={breedFilter}
+                  onChange={(event) => setBreedFilter(event.target.value)}
+                  className="rounded-lg border border-stone-300 px-2 py-2 text-sm font-normal"
+                >
+                  <option value="">Alle Rassen</option>
+                  {breedOptions.map((breed) => (
+                    <option key={breed} value={breed}>
+                      {breed}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <div className="grid gap-2 md:grid-cols-4">
+                {["Base Color", "Modifier 1", "Modifier 2", "Pattern"].map((label, position) => (
+                  <label key={label} className="grid gap-1 text-xs font-semibold text-stone-600">
+                    {label}
+                    <select
+                      value={geneFilters[position]}
+                      onChange={(event) => updateGeneFilter(position, event.target.value)}
+                      className="rounded-lg border border-stone-300 px-2 py-2 text-sm font-normal"
+                    >
+                      <option value="">Alle</option>
+                      {geneOptionsByPosition[position].map((gene) => (
+                        <option key={gene} value={gene}>
+                          {gene}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={resetFilters}
+                  className="w-fit rounded-lg bg-stone-100 px-3 py-2 text-xs font-semibold text-stone-700 hover:bg-stone-200"
+                >
+                  Filter zurücksetzen
+                </button>
+
+                {value && (
+                  <button
+                    type="button"
+                    onClick={resetSelection}
+                    className="w-fit rounded-lg bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-100"
+                  >
+                  Auswahl zurücksetzen
+                  </button>
+                )}
+              </div>
+
+              </div>
+
+            <div className="max-h-80 overflow-y-auto px-3 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {filteredHorses.length === 0 ? (
+                <p className="rounded-xl border border-dashed border-stone-300 p-4 text-sm text-stone-500">
+                  Kein passendes Pferd gefunden.
+                </p>
+              ) : (
+                <div className="grid gap-2">
+                  {filteredHorses.map((horse) => (
+                    <button
+                      key={horse.id}
+                      type="button"
+                      onClick={() => handleSelect(horse.id)}
+                      className={`rounded-lg px-3 py-2 text-left text-sm transition hover:bg-stone-100 ${
+                        value === horse.id
+                          ? "bg-stone-100 font-semibold text-stone-900"
+                          : "text-stone-800"
+                      }`}
+                    >
+                      <span className="block font-semibold">{horse.name}</span>
+                      <span className="block text-xs text-stone-500">
+                        {horse.breed || t.breedUnknown}
+                        {horse.genes ? ` · ${horse.genes}` : ""}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -1457,12 +1940,24 @@ function BreedingPlanner({ horses, onSavePairing, t }) {
   const [lastWarningKey, setLastWarningKey] = useState("");
 
   const availableStallions = useMemo(
-    () => horses.filter((horse) => horse.sex === "stallion" && horse.availableForBreeding),
+    () =>
+      horses.filter(
+        (horse) =>
+          horse.sex === "stallion" &&
+          horse.availableForBreeding &&
+          (horse.ownershipStatus || "owned") === "owned"
+      ),
     [horses]
   );
 
   const availableMares = useMemo(
-    () => horses.filter((horse) => horse.sex === "mare" && horse.availableForBreeding),
+    () =>
+      horses.filter(
+        (horse) =>
+          horse.sex === "mare" &&
+          horse.availableForBreeding &&
+          (horse.ownershipStatus || "owned") === "owned"
+      ),
     [horses]
   );
 
@@ -2061,6 +2556,10 @@ export default function App() {
       breed: mare.breed || stallion.breed || "",
       color: "",
       genes: "",
+      geneBaseColor: "",
+      geneModifier1: "",
+      geneModifier2: "",
+      genePattern: "",
       sireId: stallion.id,
       damId: mare.id,
       availableForBreeding: false,
