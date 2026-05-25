@@ -104,6 +104,8 @@ const translations = {
     colorPlaceholder: "z. B. Buckskin",
     genes: "Gene",
     genesPlaceholder: "z. B. BL-G-D",
+    geneModifiersHelp: "Maximal zwei Modifier werden als Modifier 1 und Modifier 2 gespeichert.",
+    savedGeneCode: "Gespeicherter Gen-Code",
     sire: "Vater",
     dam: "Mutter",
     unknown: "Unbekannt",
@@ -276,6 +278,8 @@ const translations = {
     colorPlaceholder: "e.g. Buckskin",
     genes: "Genes",
     genesPlaceholder: "e.g. BL-G-D",
+    geneModifiersHelp: "A maximum of two modifiers are saved as Modifier 1 and Modifier 2.",
+    savedGeneCode: "Saved gene code",
     sire: "Sire",
     dam: "Dam",
     unknown: "Unknown",
@@ -1213,7 +1217,7 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
         </label>
 
         <div className="grid gap-2">
-          <p className="text-sm font-medium text-stone-700">Modifiers optional</p>
+          <p className="text-sm font-medium text-stone-700">Modifiers (optional)</p>
 
           <div className="flex flex-wrap gap-2">
             {GENE_MODIFIER_OPTIONS.map((modifier) => {
@@ -1237,12 +1241,12 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
           </div>
 
           <p className="text-xs text-stone-500">
-            Maximal zwei Modifier werden als Modifier 1 und Modifier 2 gespeichert.
+            {t.geneModifiersHelp}
           </p>
         </div>
 
         <div className="grid gap-2">
-          <p className="text-sm font-medium text-stone-700">Pattern optional</p>
+          <p className="text-sm font-medium text-stone-700">Pattern (optional)</p>
 
           <div className="flex flex-wrap gap-2">
             {GENE_PATTERN_OPTIONS.map((pattern) => {
@@ -1267,7 +1271,7 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
         </div>
 
         <div className="rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-700">
-          Gespeicherter Gen-Code:{" "}
+          {t.savedGeneCode}:{" "}
           <strong>{buildGeneCode(form) || "—"}</strong>
         </div>
       </div>
