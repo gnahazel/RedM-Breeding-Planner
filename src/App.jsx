@@ -68,6 +68,17 @@ const translations = {
     warning: "Warnung",
     understood: "Verstanden",
 
+    filterBreed: "Rasse filtern",
+    allBreeds: "Alle Rassen",
+    filterBaseColor: "Base Color",
+    filterModifier1: "Modifier 1",
+    filterModifier2: "Modifier 2",
+    filterPattern: "Pattern",
+    allOptions: "Alle",
+    resetFilters: "Filter zurücksetzen",
+    resetSelection: "Auswahl zurücksetzen",
+    noMatchingHorse: "Kein passendes Pferd gefunden.",
+
     horseDatabase: "Pferdedatenbank",
     horseDatabaseDescription:
       "Aufklappen, um Hengste, Stuten und weitere Pferde zu verwalten.",
@@ -242,6 +253,17 @@ const translations = {
     generation: "generation",
     warning: "Warning",
     understood: "Understood",
+
+    filterBreed: "Filter breed",
+    allBreeds: "All breeds",
+    filterBaseColor: "Base Color",
+    filterModifier1: "Modifier 1",
+    filterModifier2: "Modifier 2",
+    filterPattern: "Pattern",
+    allOptions: "All",
+    resetFilters: "Reset filters",
+    resetSelection: "Reset selection",
+    noMatchingHorse: "No matching horse found.",
 
     horseDatabase: "Horse Database",
     horseDatabaseDescription:
@@ -939,28 +961,75 @@ function getAncestors(horseId, horses, maxDepth = 5) {
 }
 
 function findSharedAncestors(stallionId, mareId, horses) {
-  if (!stallionId || !mareId || stallionId === mareId) return [];
+  if (!stallionId || !mareId) return [];
+
+  const stallion = findHorse(horses, stallionId);
+  const mare = findHorse(horses, mareId);
+
+  if (!stallion || !mare) return [];
 
   const stallionAncestors = getAncestors(stallionId, horses, 5);
   const mareAncestors = getAncestors(mareId, horses, 5);
   const sharedMap = new Map();
 
+  function addSharedAncestor(id, name, stallionGeneration, mareGeneration, directRelationship = false) {
+    const existing = sharedMap.get(id) || {
+      id,
+      name,
+      stallionGenerations: [],
+      mareGenerations: [],
+      directRelationship: false,
+    };
+
+    existing.stallionGenerations.push(stallionGeneration);
+    existing.mareGenerations.push(mareGeneration);
+    existing.directRelationship = existing.directRelationship || directRelationship;
+
+    sharedMap.set(id, existing);
+  }
+
+  // Sonderfall: ausgewählter Hengst ist Vorfahr der ausgewählten Stute
+  // z. B. Vater × Tochter, Großvater × Enkelin
+  mareAncestors
+    .filter((ancestor) => ancestor.id === stallionId)
+    .forEach((ancestor) => {
+      addSharedAncestor(
+        stallion.id,
+        stallion.name,
+        0,
+        ancestor.generation,
+        true
+      );
+    });
+
+  // Sonderfall: ausgewählte Stute ist Vorfahrin des ausgewählten Hengstes
+  // z. B. Sohn × Mutter, Enkel × Großmutter
+  stallionAncestors
+    .filter((ancestor) => ancestor.id === mareId)
+    .forEach((ancestor) => {
+      addSharedAncestor(
+        mare.id,
+        mare.name,
+        ancestor.generation,
+        0,
+        true
+      );
+    });
+
+  // Normalfall: beide haben gemeinsame Vorfahren
   stallionAncestors.forEach((stallionAncestor) => {
     const matches = mareAncestors.filter(
       (mareAncestor) => mareAncestor.id === stallionAncestor.id
     );
 
     matches.forEach((mareAncestor) => {
-      const existing = sharedMap.get(stallionAncestor.id) || {
-        id: stallionAncestor.id,
-        name: stallionAncestor.name,
-        stallionGenerations: [],
-        mareGenerations: [],
-      };
-
-      existing.stallionGenerations.push(stallionAncestor.generation);
-      existing.mareGenerations.push(mareAncestor.generation);
-      sharedMap.set(stallionAncestor.id, existing);
+      addSharedAncestor(
+        stallionAncestor.id,
+        stallionAncestor.name,
+        stallionAncestor.generation,
+        mareAncestor.generation,
+        false
+      );
     });
   });
 
@@ -1717,13 +1786,13 @@ function HorseSelect({ label, value, onChange, horses, placeholder, t }) {
           <div className="absolute left-0 right-0 top-full z-40 mt-2 rounded-xl border border-stone-300 bg-white shadow-lg">
             <div className="grid gap-3 border-b border-stone-200 p-3">
               <label className="grid gap-1 text-xs font-semibold text-stone-600">
-                Rasse filtern
+                {t.filterBreed}
                 <select
                   value={breedFilter}
                   onChange={(event) => setBreedFilter(event.target.value)}
                   className="rounded-lg border border-stone-300 px-2 py-2 text-sm font-normal"
                 >
-                  <option value="">Alle Rassen</option>
+                  <option value="">{t.allBreeds}</option>
                   {breedOptions.map((breed) => (
                     <option key={breed} value={breed}>
                       {breed}
@@ -1733,7 +1802,12 @@ function HorseSelect({ label, value, onChange, horses, placeholder, t }) {
               </label>
 
               <div className="grid gap-2 md:grid-cols-4">
-                {["Base Color", "Modifier 1", "Modifier 2", "Pattern"].map((label, position) => (
+                {[
+                  t.filterBaseColor,
+                  t.filterModifier1,
+                  t.filterModifier2,
+                  t.filterPattern
+                ].map((label, position) => (
                   <label key={label} className="grid gap-1 text-xs font-semibold text-stone-600">
                     {label}
                     <select
@@ -1741,7 +1815,7 @@ function HorseSelect({ label, value, onChange, horses, placeholder, t }) {
                       onChange={(event) => updateGeneFilter(position, event.target.value)}
                       className="rounded-lg border border-stone-300 px-2 py-2 text-sm font-normal"
                     >
-                      <option value="">Alle</option>
+                      <option value="">{t.allOptions}</option>
                       {geneOptionsByPosition[position].map((gene) => (
                         <option key={gene} value={gene}>
                           {gene}
@@ -1758,7 +1832,7 @@ function HorseSelect({ label, value, onChange, horses, placeholder, t }) {
                   onClick={resetFilters}
                   className="w-fit rounded-lg bg-stone-100 px-3 py-2 text-xs font-semibold text-stone-700 hover:bg-stone-200"
                 >
-                  Filter zurücksetzen
+                  {t.resetFilters}
                 </button>
 
                 {value && (
@@ -1767,7 +1841,7 @@ function HorseSelect({ label, value, onChange, horses, placeholder, t }) {
                     onClick={resetSelection}
                     className="w-fit rounded-lg bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-100"
                   >
-                  Auswahl zurücksetzen
+                  {t.resetSelection}
                   </button>
                 )}
               </div>
@@ -1777,7 +1851,7 @@ function HorseSelect({ label, value, onChange, horses, placeholder, t }) {
             <div className="max-h-80 overflow-y-auto px-3 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {filteredHorses.length === 0 ? (
                 <p className="rounded-xl border border-dashed border-stone-300 p-4 text-sm text-stone-500">
-                  Kein passendes Pferd gefunden.
+                  {t.noMatchingHorse}
                 </p>
               ) : (
                 <div className="grid gap-2">
@@ -2546,33 +2620,36 @@ export default function App() {
   }
 
   function prepareFoalFromPairing(pairing) {
-    const stallion = findHorse(horses, pairing.stallionId);
-    const mare = findHorse(horses, pairing.mareId);
+  const stallion = findHorse(horses, pairing.stallionId);
+  const mare = findHorse(horses, pairing.mareId);
 
-    if (!stallion || !mare) return;
+  if (!stallion || !mare) return;
 
-    setEditingHorse(null);
+  setEditingHorse(null);
 
-    setPrefillHorse({
-      ...emptyHorseForm,
-      name: "",
-      sex: "mare",
-      breed: mare.breed || stallion.breed || "",
-      color: "",
-      genes: "",
-      geneBaseColor: "",
-      geneModifier1: "",
-      geneModifier2: "",
-      genePattern: "",
-      sireId: stallion.id,
-      damId: mare.id,
-      availableForBreeding: false,
-      owner: mare.owner || stallion.owner || "",
-      notes: "",
-    });
+  setPrefillHorse({
+    ...emptyHorseForm,
+    name: "",
+    sex: "mare",
+    breed: mare.breed || stallion.breed || "",
+    color: "",
+    genes: "",
+    geneBaseColor: "",
+    geneModifier1: "",
+    geneModifier2: "",
+    genePattern: "",
+    sireId: stallion.id,
+    damId: mare.id,
+    availableForBreeding: false,
+    ownershipStatus: "owned",
+    owner: mare.owner || stallion.owner || "",
+    notes: "",
+  });
 
+  window.setTimeout(() => {
     window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-  }
+  }, 0);
+}
 
   function importBackup(importedHorses, importedPairings) {
     setHorses(importedHorses);
