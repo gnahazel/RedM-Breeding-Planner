@@ -1109,6 +1109,8 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
       return;
     }
 
+    const geneParts = getHorseGeneParts(sourceHorse);
+
     setForm({
       name: sourceHorse.name || "",
       sex: sourceHorse.sex || "mare",
