@@ -45,6 +45,7 @@ const translations = {
     pairingNote: "Notiz zum Pairing",
     pairingNotePlaceholder: "z. B. Ziel: Farbe, Linie, RP-Story, Temperament ...",
     savePairing: "Pairing speichern",
+    removePreparedFoal: "Vorbereitetes Fohlen entfernen",
 
     relationshipNone: "Keine Verwandtschaft gefunden",
     relationshipNoneMessage:
@@ -137,6 +138,8 @@ const translations = {
     saveChanges: "Änderungen speichern",
     edit: "Bearbeiten",
     delete: "Löschen",
+    deletePairing: "Pairing löschen",
+    deletePairingConfirm: "Möchtest du dieses Pairing wirklich löschen?",
     breedUnknown: "Rasse unbekannt",
     colorUnknown: "Farbe unbekannt",
     genesUnknown: "Gene unbekannt",
@@ -231,6 +234,7 @@ const translations = {
     pairingNote: "Pairing note",
     pairingNotePlaceholder: "e.g. goal: color, line, RP story, temperament ...",
     savePairing: "Save pairing",
+    removePreparedFoal: "Remove prepared foal",
 
     relationshipNone: "No relationship found",
     relationshipNoneMessage:
@@ -322,6 +326,8 @@ const translations = {
     saveChanges: "Save changes",
     edit: "Edit",
     delete: "Delete",
+    deletePairing: "Delete pairing",
+    deletePairingConfirm: "Do you really want to delete this pairing?",
     breedUnknown: "Unknown breed",
     colorUnknown: "Unknown color",
     genesUnknown: "Unknown genes",
@@ -1213,15 +1219,15 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
           </p>
         </div>
 
-        {editingHorse && (
+        {(editingHorse || prefillHorse) && (
           <button
             type="button"
             onClick={onCancelEdit}
             className="rounded-xl bg-[#4f4d63] px-3 py-2 text-xs font-semibold text-white hover:bg-[#6a6885]"
           >
-            {t.cancel}
+            {editingHorse ? t.cancel : t.removePreparedFoal}
           </button>
-        )}
+      )}
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
@@ -2160,7 +2166,7 @@ function BreedingPlanner({ horses, onSavePairing, t }) {
   );
 }
 
-function PairingList({ pairings, horses, onCreateFoal, t }) {
+function PairingList({ pairings, horses, onCreateFoal, onDeletePairing, t }) {
   if (pairings.length === 0) {
     return (
       <section className="border border-black bg-transparent p-5 shadow-sm">
@@ -2196,12 +2202,21 @@ function PairingList({ pairings, horses, onCreateFoal, t }) {
                   </p>
                 </div>
 
-                <button
-                  onClick={() => onCreateFoal(pairing)}
-                  className="rounded-xl bg-stone-100 px-3 py-2 text-xs font-semibold text-stone-800 hover:bg-stone-200"
-                >
-                  {t.createFoal}
-                </button>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => onCreateFoal(pairing)}
+                    className="rounded-xl bg-stone-100 px-3 py-2 text-xs font-semibold text-stone-800 hover:bg-stone-200"
+                  >
+                    {t.createFoal}
+                  </button>
+
+                  <button
+                    onClick={() => onDeletePairing(pairing.id)}
+                    className="rounded-xl bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-100"
+                  >
+                    {t.deletePairing}
+                  </button>
+                </div>
               </div>
 
               {pairing.notes && <p className="mt-3 text-sm text-stone-600">{pairing.notes}</p>}
@@ -2621,6 +2636,15 @@ export default function App() {
     setPairings((current) => [pairing, ...current]);
   }
 
+  function deletePairing(pairingId) {
+  const confirmed = window.confirm(t.deletePairingConfirm);
+  if (!confirmed) return;
+
+  setPairings((current) =>
+    current.filter((pairing) => pairing.id !== pairingId)
+  );
+}
+
   function prepareFoalFromPairing(pairing) {
   const stallion = findHorse(horses, pairing.stallionId);
   const mare = findHorse(horses, pairing.mareId);
@@ -2727,7 +2751,13 @@ export default function App() {
             }}
           t={t}
           />
-          <PairingList pairings={pairings} horses={horses} onCreateFoal={prepareFoalFromPairing} t={t} />
+          <PairingList
+            pairings={pairings}
+            horses={horses}
+            onCreateFoal={prepareFoalFromPairing}
+            onDeletePairing={deletePairing}
+            t={t}
+          />
         </div>
       </div>
     </main>
