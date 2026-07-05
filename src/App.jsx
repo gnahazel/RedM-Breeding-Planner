@@ -100,6 +100,12 @@ const translations = {
     noHorsesInCategory: "In dieser Kategorie ist noch kein Pferd eingetragen.",
     noHorsesHere: "Hier ist noch kein Pferd eingetragen.",
 
+    horseImage: "Pferdebild",
+    uploadHorseImage: "Bild hochladen",
+    removeHorseImage: "Bild entfernen",
+    viewImage: "Bild anzeigen",
+    closeImage: "Bild schließen",
+    imageTooLarge: "Das Bild ist zu groß. Bitte nutze ein kleineres oder komprimiertes Bild.",
     addHorse: "Pferd hinzufügen",
     editHorse: "Pferd bearbeiten",
     addHorseDescription:
@@ -289,6 +295,12 @@ const translations = {
     noHorsesInCategory: "No horse has been added to this category yet.",
     noHorsesHere: "No horse has been added here yet.",
 
+    horseImage: "Horse image",
+    uploadHorseImage: "Upload image",
+    removeHorseImage: "Remove image",
+    viewImage: "View image",
+    closeImage: "Close image",
+    imageTooLarge: "The image is too large. Please use a smaller or compressed image.",
     addHorse: "Add horse",
     editHorse: "Edit horse",
     addHorseDescription:
@@ -687,6 +699,7 @@ const BACKUP_COLUMNS = [
   "ownershipStatus",
   "owner",
   "notes",
+  "imageDataUrl",
   "stallionId",
   "mareId",
   "status",
@@ -739,6 +752,7 @@ function makeBackupCsv(horses, pairings) {
     ownershipStatus: horse.ownershipStatus || "owned",
     owner: horse.owner,
     notes: horse.notes,
+    imageDataUrl: horse.imageDataUrl || "",
     stallionId: "",
     mareId: "",
     status: "",
@@ -764,6 +778,7 @@ function makeBackupCsv(horses, pairings) {
     ownershipStatus: "",
     owner: "",
     notes: pairing.notes,
+    imageDataUrl: "",
     stallionId: pairing.stallionId,
     mareId: pairing.mareId,
     status: pairing.status,
@@ -894,6 +909,7 @@ function parseBackupCsv(text, t) {
       ownershipStatus: record.ownershipStatus || "owned",
       owner: record.owner || "",
       notes: record.notes || "",
+      imageDataUrl: record.imageDataUrl || "",
     }));
 
   const importedHorseIds = new Set(importedHorses.map((horse) => horse.id));
@@ -1133,12 +1149,37 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
       ownershipStatus: sourceHorse.ownershipStatus || "owned",
       owner: sourceHorse.owner || "",
       notes: sourceHorse.notes || "",
+      imageDataUrl: sourceHorse.imageDataUrl || "",
     });
   }, [editingHorse, prefillHorse]);
 
   function updateField(field, value) {
     setForm((current) => ({ ...current, [field]: value }));
   }
+
+  function handleImageUpload(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  const maxSizeInBytes = 900 * 1024;
+
+  if (file.size > maxSizeInBytes) {
+    window.alert(t.imageTooLarge);
+    event.target.value = "";
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    setForm((current) => ({
+      ...current,
+      imageDataUrl: String(reader.result || ""),
+    }));
+  };
+
+  reader.readAsDataURL(file);
+}
 
   function selectedModifiers() {
   return [form.geneModifier1, form.geneModifier2].filter(Boolean);
@@ -1194,6 +1235,7 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
       notes: form.notes.trim(),
       sireId: form.sireId || null,
       damId: form.damId || null,
+      imageDataUrl: form.imageDataUrl || "",
     };
 
     onSaveHorse(savedHorse);
@@ -1413,6 +1455,40 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
           <option value="notOwned">{t.ownershipNotOwned}</option>
         </select>
       </label>
+
+      <div className="grid gap-2 md:col-span-2">
+        <p className="text-sm font-medium text-stone-700">{t.horseImage}</p>
+
+        {form.imageDataUrl && (
+          <img
+            src={form.imageDataUrl}
+            alt={form.name || t.horseImage}
+            className="max-h-56 w-full rounded-xl border border-stone-300 object-contain"
+          />
+        )}
+
+        <div className="flex flex-wrap gap-2">
+          <label className="w-fit cursor-pointer rounded-xl bg-[#4f4d63] px-4 py-2 text-sm font-semibold text-white hover:bg-[#6a6885]">
+            {t.uploadHorseImage}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+            />
+          </label>
+
+          {form.imageDataUrl && (
+            <button
+              type="button"
+              onClick={() => updateField("imageDataUrl", "")}
+              className="rounded-xl bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100"
+            >
+              {t.removeHorseImage}
+            </button>
+          )}
+        </div>
+      </div>        
 
       <label className="mt-3 grid gap-1 text-sm font-medium text-stone-700">
         {t.notes}
@@ -1637,6 +1713,7 @@ function HorseSubGroup({
 function HorseCard({ horse, horses, onToggleAvailability, onEditHorse, onDeleteHorse, t }) {
   const sire = findHorse(horses, horse.sireId);
   const dam = findHorse(horses, horse.damId);
+  const [showImage, setShowImage] = useState(false);
 
   return (
     <article className="rounded-xl border border-black bg-transparent p-4">
@@ -1664,6 +1741,15 @@ function HorseCard({ horse, horses, onToggleAvailability, onEditHorse, onDeleteH
             {horse.availableForBreeding ? t.availableBadge : t.unavailableBadge}
           </button>
 
+          {horse.imageDataUrl && (
+            <button
+              onClick={() => setShowImage(true)}
+              className="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-700 hover:bg-stone-200"
+            >
+              {t.viewImage}
+            </button>
+          )}    
+
           <button
             onClick={() => onEditHorse(horse)}
             className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-800 hover:bg-blue-100"
@@ -1681,6 +1767,28 @@ function HorseCard({ horse, horses, onToggleAvailability, onEditHorse, onDeleteH
       </div>
 
       {horse.notes && <p className="mt-3 text-sm text-stone-600">{horse.notes}</p>}
+
+      {showImage && horse.imageDataUrl && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4">
+          <div className="max-h-[90vh] w-full max-w-4xl bg-white p-4 shadow-xl">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h3 className="text-lg font-semibold text-stone-900">{horse.name}</h3>
+              <button
+                onClick={() => setShowImage(false)}
+                className="rounded-xl bg-[#4f4d63] px-3 py-2 text-sm font-semibold text-white hover:bg-[#6a6885]"
+              >
+                {t.closeImage}
+              </button>
+            </div>
+
+            <img
+              src={horse.imageDataUrl}
+              alt={horse.name}
+              className="max-h-[75vh] w-full object-contain"
+            />
+          </div>
+        </div>
+      )}
     </article>
   );
 }
@@ -2670,6 +2778,7 @@ export default function App() {
     ownershipStatus: "owned",
     owner: mare.owner || stallion.owner || "",
     notes: "",
+    imageDataUrl: "",
   });
 
   window.setTimeout(() => {
