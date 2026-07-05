@@ -1729,6 +1729,74 @@ function HorseSubGroup({
   );
 }
 
+const SEX_BADGE_CLASSES = {
+  stallion: "border-blue-300 bg-blue-50 text-blue-800",
+  mare: "border-rose-300 bg-rose-50 text-rose-800",
+  gelding: "border-violet-300 bg-violet-50 text-violet-800",
+};
+
+const BASE_GENE_BADGE_CLASSES = {
+  R: "border-red-300 bg-red-50 text-red-800",
+  BL: "border-stone-500 bg-stone-900 text-white",
+  B: "border-amber-500 bg-amber-100 text-amber-900",
+};
+
+const MODIFIER_BADGE_CLASSES = "border-sky-300 bg-sky-50 text-sky-800";
+const PATTERN_BADGE_CLASSES = "border-emerald-300 bg-emerald-50 text-emerald-800";
+const UNKNOWN_BADGE_CLASSES = "border-stone-300 bg-stone-50 text-stone-500";
+
+function Badge({ children, className = "" }) {
+  return (
+    <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold ${className}`}>
+      {children}
+    </span>
+  );
+}
+
+function SexBadge({ sex, t }) {
+  return (
+    <Badge className={SEX_BADGE_CLASSES[sex] || UNKNOWN_BADGE_CLASSES}>
+      {t.sexLabels[sex] || sex}
+    </Badge>
+  );
+}
+
+function GeneBadges({ horse, t }) {
+  const parts = getHorseGeneParts(horse);
+  const baseClass = BASE_GENE_BADGE_CLASSES[parts.baseColor] || UNKNOWN_BADGE_CLASSES;
+
+  const hasAnyGene =
+    parts.baseColor || parts.modifier1 || parts.modifier2 || parts.pattern || horse.genes;
+
+  if (!hasAnyGene) {
+    return <Badge className={UNKNOWN_BADGE_CLASSES}>{t.genesUnknown}</Badge>;
+  }
+
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {parts.baseColor && (
+        <Badge className={baseClass}>Base: {parts.baseColor}</Badge>
+      )}
+
+      {parts.modifier1 && (
+        <Badge className={MODIFIER_BADGE_CLASSES}>Mod: {parts.modifier1}</Badge>
+      )}
+
+      {parts.modifier2 && (
+        <Badge className={MODIFIER_BADGE_CLASSES}>Mod: {parts.modifier2}</Badge>
+      )}
+
+      {parts.pattern && (
+        <Badge className={PATTERN_BADGE_CLASSES}>Pattern: {parts.pattern}</Badge>
+      )}
+
+      {!parts.baseColor && horse.genes && (
+        <Badge className={UNKNOWN_BADGE_CLASSES}>{horse.genes}</Badge>
+      )}
+    </div>
+  );
+}
+
 function HorseCard({ horse, horses, onToggleAvailability, onEditHorse, onDeleteHorse, t }) {
   const sire = findHorse(horses, horse.sireId);
   const dam = findHorse(horses, horse.damId);
@@ -1739,9 +1807,15 @@ function HorseCard({ horse, horses, onToggleAvailability, onEditHorse, onDeleteH
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h3 className="font-semibold text-stone-900">{horse.name}</h3>
-          <p className="text-sm text-stone-500">
-            {t.sexLabels[horse.sex]} · {horse.breed || t.breedUnknown} · {horse.color || t.colorUnknown} · {horse.genes || t.genesUnknown}
-          </p>
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            <SexBadge sex={horse.sex} t={t} />
+
+            <span className="text-sm text-stone-500">
+              {horse.breed || t.breedUnknown} · {horse.color || t.colorUnknown}
+            </span>
+
+            <GeneBadges horse={horse} t={t} />
+          </div>
           <p className="mt-1 text-xs text-stone-400">{t.owner}: {horse.owner || t.ownerUnknown}</p>
           <p className="mt-1 text-xs text-stone-400">
             {t.parentInfo(sire?.name || t.unknownLower, dam?.name || t.unknownLower)}
@@ -2017,10 +2091,15 @@ function HorseSelect({ label, value, onChange, horses, placeholder, t }) {
                       }`}
                     >
                       <span className="block font-semibold">{horse.name}</span>
-                      <span className="block text-xs text-stone-500">
-                        {horse.breed || t.breedUnknown}
-                        {horse.genes ? ` · ${horse.genes}` : ""}
-                      </span>
+                      <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                        <SexBadge sex={horse.sex} t={t} />
+
+                        <span className="text-xs text-stone-500">
+                          {horse.breed || t.breedUnknown}
+                        </span>
+
+                        <GeneBadges horse={horse} t={t} />
+                      </div>
                     </button>
                   ))}
                 </div>
@@ -2579,6 +2658,9 @@ function PedigreeVisualCard({ node, t }) {
       {horse ? (
         <>
           <h4 className="font-semibold text-stone-900">{horse.name}</h4>
+          <div className="mt-1">
+            <SexBadge sex={horse.sex} t={t} />
+          </div>
           <p className="mt-1 text-xs text-stone-500">{relationLabel}</p>
           <dl className="mt-2 grid gap-1 text-xs text-stone-700">
             <div>
@@ -2590,8 +2672,10 @@ function PedigreeVisualCard({ node, t }) {
               <dd className="inline">{horse.breed || t.breedUnknown}</dd>
             </div>
             <div>
-              <dt className="inline font-semibold">{t.genes}: </dt>
-              <dd className="inline">{horse.genes || t.genesUnknown}</dd>
+              <dt className="mb-1 block font-semibold">{t.genes}:</dt>
+              <dd>
+                <GeneBadges horse={horse} t={t} />
+              </dd>
             </div>
           </dl>
         </>
