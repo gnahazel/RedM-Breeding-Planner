@@ -101,6 +101,7 @@ const translations = {
     noHorsesHere: "Hier ist noch kein Pferd eingetragen.",
 
     horseImage: "Pferdebild",
+    downloadImage: "Bild herunterladen",
     uploadHorseImage: "Bild hochladen",
     removeHorseImage: "Bild entfernen",
     viewImage: "Bild anzeigen",
@@ -296,6 +297,7 @@ const translations = {
     noHorsesHere: "No horse has been added here yet.",
 
     horseImage: "Horse image",
+    downloadImage: "Download image",
     uploadHorseImage: "Upload image",
     removeHorseImage: "Remove image",
     viewImage: "View image",
@@ -807,6 +809,23 @@ function downloadTextFile(content, filename, mimeType) {
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
+}
+
+function downloadDataUrl(dataUrl, filename) {
+  const link = document.createElement("a");
+  link.href = dataUrl;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+function safeFilename(name) {
+  return String(name || "horse-image")
+    .trim()
+    .replace(/[^a-z0-9äöüß_-]+/gi, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
 }
 
 function parseCsv(text) {
@@ -1771,14 +1790,29 @@ function HorseCard({ horse, horses, onToggleAvailability, onEditHorse, onDeleteH
       {showImage && horse.imageDataUrl && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4">
           <div className="max-h-[90vh] w-full max-w-4xl bg-white p-4 shadow-xl">
-            <div className="mb-3 flex items-center justify-between gap-3">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
               <h3 className="text-lg font-semibold text-stone-900">{horse.name}</h3>
-              <button
-                onClick={() => setShowImage(false)}
-                className="rounded-xl bg-[#4f4d63] px-3 py-2 text-sm font-semibold text-white hover:bg-[#6a6885]"
-              >
-                {t.closeImage}
-              </button>
+
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() =>
+                    downloadDataUrl(
+                      horse.imageDataUrl,
+                      `${safeFilename(horse.name)}.jpg`
+                    )
+                  }
+                  className="rounded-xl bg-[#4f4d63] px-3 py-2 text-sm font-semibold text-white hover:bg-[#6a6885]"
+                >
+                  {t.downloadImage}
+                </button>
+
+                <button
+                  onClick={() => setShowImage(false)}
+                  className="rounded-xl bg-stone-100 px-3 py-2 text-sm font-semibold text-stone-800 hover:bg-stone-200"
+                >
+                  {t.closeImage}
+                </button>
+              </div>
             </div>
 
             <img
