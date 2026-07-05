@@ -1730,20 +1730,20 @@ function HorseSubGroup({
 }
 
 const SEX_BADGE_CLASSES = {
-  stallion: "border-blue-300 bg-blue-50 text-blue-800",
-  mare: "border-rose-300 bg-rose-50 text-rose-800",
-  gelding: "border-violet-300 bg-violet-50 text-violet-800",
+  stallion: "border-orange-500 bg-orange-200 text-stone",
+  mare: "border-violet-500 bg-violet-200 text-stone",
+  gelding: "border-grey-500 bg-grey-200 text-stone",
 };
 
 const BASE_GENE_BADGE_CLASSES = {
-  R: "border-red-300 bg-red-50 text-red-800",
-  BL: "border-stone-500 bg-stone-900 text-white",
-  B: "border-amber-500 bg-amber-100 text-amber-900",
+  R: "border-red-300 bg-red-300 text-white-800",
+  BL: "border-stone-300 bg-stone-300 text-white-800",
+  B: "border-amber-300 bg-amber-300 text-white-800",
 };
 
-const MODIFIER_BADGE_CLASSES = "border-sky-300 bg-sky-50 text-sky-800";
-const PATTERN_BADGE_CLASSES = "border-emerald-300 bg-emerald-50 text-emerald-800";
-const UNKNOWN_BADGE_CLASSES = "border-stone-300 bg-stone-50 text-stone-500";
+const MODIFIER_BADGE_CLASSES = "border-sky-50 bg-sky-50 text-sky-800";
+const PATTERN_BADGE_CLASSES = "border-emerald-50 bg-emerald-50 text-emerald-800";
+const UNKNOWN_BADGE_CLASSES = "border-stone-50 bg-stone-50 text-stone-500";
 
 function Badge({ children, className = "" }) {
   return (
