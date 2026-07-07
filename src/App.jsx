@@ -154,6 +154,9 @@ const translations = {
     colorUnknown: "Farbe unbekannt",
     genesUnknown: "Gene unbekannt",
     ownerUnknown: "unbekannt",
+    ownerFilter: "Nach Besitzer filtern",
+    allOwners: "Alle Besitzer",
+    unknownOwnerFilter: "Unbekannter Besitzer",
     parentInfo: (sire, dam) => `Vater: ${sire} · Mutter: ${dam}`,
     deleteHorseConfirm: (name, childrenCount, pairingsCount) => {
       const lines = [`Möchtest du "${name}" wirklich löschen?`];
@@ -351,6 +354,9 @@ const translations = {
     colorUnknown: "Unknown color",
     genesUnknown: "Unknown genes",
     ownerUnknown: "unknown",
+    ownerFilter: "Filter by owner",
+    allOwners: "All owners",
+    unknownOwnerFilter: "Unknown owner",
     parentInfo: (sire, dam) => `Sire: ${sire} · Dam: ${dam}`,
     deleteHorseConfirm: (name, childrenCount, pairingsCount) => {
       const lines = [`Do you really want to delete "${name}"?`];
@@ -1532,9 +1538,30 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
 }
 
 function HorseList({ horses, onToggleAvailability, onEditHorse, onDeleteHorse, t }) {
-  const stallions = horses.filter((horse) => horse.sex === "stallion");
-  const mares = horses.filter((horse) => horse.sex === "mare");
-  const others = horses.filter((horse) => horse.sex !== "stallion" && horse.sex !== "mare");
+  const [ownerFilter, setOwnerFilter] = useState("all");
+
+  function getOwnerValue(horse) {
+    return horse.owner?.trim() || "__unknown__";
+  }
+
+  function getOwnerLabel(ownerValue) {
+    return ownerValue === "__unknown__" ? t.unknownOwnerFilter : ownerValue;
+  }
+
+  const ownerOptions = useMemo(() => {
+    return Array.from(new Set(horses.map(getOwnerValue))).sort((a, b) =>
+      getOwnerLabel(a).localeCompare(getOwnerLabel(b))
+    );
+  }, [horses, t]);
+
+  const filteredHorses = useMemo(() => {
+    if (ownerFilter === "all") return horses;
+    return horses.filter((horse) => getOwnerValue(horse) === ownerFilter);
+  }, [horses, ownerFilter]);
+
+  const stallions = filteredHorses.filter((horse) => horse.sex === "stallion");
+  const mares = filteredHorses.filter((horse) => horse.sex === "mare");
+  const others = filteredHorses.filter((horse) => horse.sex !== "stallion" && horse.sex !== "mare");
 
   return (
     <section className="border border-black bg-transparent p-5 shadow-sm">
@@ -1544,9 +1571,25 @@ function HorseList({ horses, onToggleAvailability, onEditHorse, onDeleteHorse, t
             <p className="text-sm text-white">{t.horseDatabaseDescription}</p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="grid gap-1 text-xs font-semibold text-white">
+              {t.ownerFilter}
+              <select
+                value={ownerFilter}
+                onChange={(event) => setOwnerFilter(event.target.value)}
+                className="rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm font-normal text-stone-900 outline-none focus:border-stone-900"
+              >
+                <option value="all">{t.allOwners}</option>
+                {ownerOptions.map((ownerValue) => (
+                  <option key={ownerValue} value={ownerValue}>
+                    {getOwnerLabel(ownerValue)}
+                  </option>
+                ))}
+              </select>
+            </label>
+
             <span className="rounded-full bg-white px-3 py-1 text-sm text-stone-700 shadow-sm">
-              {t.horsesCount(horses.length)}
+              {t.horsesCount(filteredHorses.length)}
             </span>
           </div>
         </div>
