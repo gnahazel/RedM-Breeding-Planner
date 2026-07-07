@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { toPng } from "html-to-image";
 
 const STORAGE_KEYS = {
   horses: "redm-breeding-planner-horses",
@@ -32,6 +33,8 @@ const translations = {
     importSuccess: "Import erfolgreich. Deine Daten wurden ersetzt.",
     importReadError: "Die Datei konnte nicht gelesen werden.",
     importGenericError: "Die CSV-Datei konnte nicht importiert werden.",
+    exportPedigree: "Stammbaum exportieren",
+    exportPedigreeError: "Der Stammbaum konnte nicht exportiert werden.",
 
     plannerTitle: "Breeding Planner",
     plannerDescription:
@@ -228,6 +231,8 @@ const translations = {
     importSuccess: "Import successful. Your data has been replaced.",
     importReadError: "The file could not be read.",
     importGenericError: "The CSV file could not be imported.",
+    exportPedigree: "Export pedigree",
+    exportPedigreeError: "The pedigree could not be exported.",
 
     plannerTitle: "Breeding Planner",
     plannerDescription:
@@ -2458,6 +2463,7 @@ function PairingList({ pairings, horses, onCreateFoal, onDeletePairing, t }) {
 function PedigreeViewer({ horses, t }) {
   const [selectedHorseId, setSelectedHorseId] = useState("");
   const [showPedigree, setShowPedigree] = useState(false);
+  const pedigreeExportRef = useRef(null);
 
   const sortedHorses = useMemo(
     () => [...horses].sort((first, second) => first.name.localeCompare(second.name)),
@@ -2465,6 +2471,25 @@ function PedigreeViewer({ horses, t }) {
   );
 
   const selectedHorse = findHorse(horses, selectedHorseId);
+  async function handleExportPedigree() {
+    if (!selectedHorse || !pedigreeExportRef.current) return;
+
+    try {
+      const dataUrl = await toPng(pedigreeExportRef.current, {
+        cacheBust: true,
+        pixelRatio: 2,
+        backgroundColor: "#ffffff",
+      });
+
+      downloadDataUrl(
+        dataUrl,
+        `${safeFilename(selectedHorse.name)}-pedigree.png`
+      );
+    } catch (error) {
+      console.error(error);
+      window.alert(t.exportPedigreeError);
+    }
+  }
 
   function handleSelect(horseId) {
     setSelectedHorseId(horseId);
@@ -2488,15 +2513,26 @@ function PedigreeViewer({ horses, t }) {
           t={t}
         />
 
-        <button
-          type="button"
-          disabled={!selectedHorse}
-          onClick={() => setShowPedigree((current) => !current)}
-          className="rounded-xl bg-[#4f4d63] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#6a6885] disabled:cursor-not-allowed disabled:bg-stone-300 disabled:text-stone-500"
-        >
-          {showPedigree ? t.hidePedigree : t.showPedigree}
-        </button>
-      </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            disabled={!selectedHorse}
+            onClick={() => setShowPedigree((current) => !current)}
+            className="rounded-xl bg-[#4f4d63] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#6a6885] disabled:cursor-not-allowed disabled:bg-stone-300 disabled:text-stone-500"
+          >
+            {showPedigree ? t.hidePedigree : t.showPedigree}
+          </button>
+
+          <button
+            type="button"
+            disabled={!selectedHorse || !showPedigree}
+            onClick={handleExportPedigree}
+            className="rounded-xl bg-stone-100 px-4 py-3 text-sm font-semibold text-stone-800 transition hover:bg-stone-200 disabled:cursor-not-allowed disabled:bg-stone-300 disabled:text-stone-500"
+          >
+            {t.exportPedigree}
+          </button>
+        </div>
+      </div>  
 
       {!selectedHorse && (
         <p className="mt-4 rounded-xl border border-dashed border-stone-300 p-4 text-sm text-stone-500">
@@ -2506,7 +2542,12 @@ function PedigreeViewer({ horses, t }) {
 
       {selectedHorse && showPedigree && (
         <div className="mt-6">
-          <VisualPedigreeChart horse={selectedHorse} horses={horses} t={t} />
+          <VisualPedigreeChart
+            horse={selectedHorse}
+            horses={horses}
+            t={t}
+            exportRef={pedigreeExportRef}
+          />
           <p className="mt-3 text-xs text-stone-500">{t.pedigreeHint}</p>
         </div>
       )}
@@ -2619,14 +2660,15 @@ function buildPedigreeNodes(rootHorse, horses, maxDepth = 3) {
   return { nodes, maxRows, maxDepth };
 }
 
-function VisualPedigreeChart({ horse, horses, t }) {
+function VisualPedigreeChart({ horse, horses, t, exportRef = null }) {
   const { nodes, maxRows, maxDepth } = buildPedigreeNodes(horse, horses, 3);
 
   return (
     <div className="border border-black bg-transparent p-4 shadow-sm">
       <div className="overflow-x-auto pb-3 [scrollbar-width:thin]">
         <div
-          className="relative grid min-w-[980px] gap-x-16 gap-y-2 px-4 py-4"
+          ref={exportRef}
+          className="relative grid min-w-[980px] gap-x-16 gap-y-2 bg-white px-4 py-4"
           style={{
             gridTemplateColumns: `repeat(${maxDepth + 1}, 210px)`,
             gridTemplateRows: `repeat(${maxRows}, minmax(24px, auto))`,
