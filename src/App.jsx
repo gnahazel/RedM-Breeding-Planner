@@ -157,6 +157,13 @@ const translations = {
     ownerFilter: "Nach Besitzer filtern",
     allOwners: "Alle Besitzer",
     unknownOwnerFilter: "Unbekannter Besitzer",
+    baseStats: "Base Stats",
+    statHealth: "Health",
+    statStamina: "Stamina",
+    statCourage: "Courage",
+    statAgility: "Agility",
+    statSpeed: "Speed",
+    statAcceleration: "Acceleration",
     parentInfo: (sire, dam) => `Vater: ${sire} · Mutter: ${dam}`,
     deleteHorseConfirm: (name, childrenCount, pairingsCount) => {
       const lines = [`Möchtest du "${name}" wirklich löschen?`];
@@ -357,6 +364,13 @@ const translations = {
     ownerFilter: "Filter by owner",
     allOwners: "All owners",
     unknownOwnerFilter: "Unknown owner",
+    baseStats: "Base stats",
+    statHealth: "Health",
+    statStamina: "Stamina",
+    statCourage: "Courage",
+    statAgility: "Agility",
+    statSpeed: "Speed",
+    statAcceleration: "Acceleration",
     parentInfo: (sire, dam) => `Sire: ${sire} · Dam: ${dam}`,
     deleteHorseConfirm: (name, childrenCount, pairingsCount) => {
       const lines = [`Do you really want to delete "${name}"?`];
@@ -677,6 +691,41 @@ function buildGeneCode({ geneBaseColor, geneModifier1, geneModifier2, genePatter
     .join("-");
 }
 
+const STAT_VALUE_OPTIONS = Array.from({ length: 10 }, (_, index) =>
+  String(index + 1)
+);
+
+const DEFAULT_BASE_STATS = {
+  health: "1",
+  stamina: "1",
+  courage: "1",
+  agility: "1",
+  speed: "1",
+  acceleration: "1",
+};
+
+const BASE_STAT_FIELDS = [
+  { key: "health", labelKey: "statHealth" },
+  { key: "stamina", labelKey: "statStamina" },
+  { key: "courage", labelKey: "statCourage" },
+  { key: "agility", labelKey: "statAgility" },
+  { key: "speed", labelKey: "statSpeed" },
+  { key: "acceleration", labelKey: "statAcceleration" },
+];
+
+function getHorseBaseStats(horse) {
+  const stats = horse?.baseStats || {};
+
+  return {
+    health: String(stats.health || horse?.statHealth || "1"),
+    stamina: String(stats.stamina || horse?.statStamina || "1"),
+    courage: String(stats.courage || horse?.statCourage || "1"),
+    agility: String(stats.agility || horse?.statAgility || "1"),
+    speed: String(stats.speed || horse?.statSpeed || "1"),
+    acceleration: String(stats.acceleration || horse?.statAcceleration || "1"),
+  };
+}
+
 const emptyHorseForm = {
   name: "",
   sex: "mare",
@@ -691,7 +740,10 @@ const emptyHorseForm = {
   damId: "",
   availableForBreeding: true,
   ownershipStatus: "owned",
+  owner: "",
+  imageDataUrl: "",
   notes: "",
+  baseStats: { ...DEFAULT_BASE_STATS },
 };
 
 const BACKUP_COLUMNS = [
@@ -1180,8 +1232,19 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
       owner: sourceHorse.owner || "",
       notes: sourceHorse.notes || "",
       imageDataUrl: sourceHorse.imageDataUrl || "",
+      baseStats: getHorseBaseStats(sourceHorse),
     });
   }, [editingHorse, prefillHorse]);
+
+  function updateBaseStat(statKey, value) {
+    setForm((current) => ({
+      ...current,
+      baseStats: {
+        ...current.baseStats,
+        [statKey]: value,
+      },
+    }));
+  }
 
   function updateField(field, value) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -1263,9 +1326,10 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
       genePattern: form.genePattern.trim().toUpperCase(),
       owner: form.owner.trim(),
       notes: form.notes.trim(),
+      imageDataUrl: form.imageDataUrl || "",
+      baseStats: getHorseBaseStats(form),
       sireId: form.sireId || null,
       damId: form.damId || null,
-      imageDataUrl: form.imageDataUrl || "",
     };
 
     onSaveHorse(savedHorse);
@@ -1422,6 +1486,34 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
         <div className="rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-700">
           {t.savedGeneCode}:{" "}
           <strong>{buildGeneCode(form) || "—"}</strong>
+        </div>
+      </div>
+
+      <div className="grid gap-3 md:col-span-2">
+        <h3 className="text-sm font-semibold text-stone-800">
+          {t.baseStats}
+        </h3>
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {BASE_STAT_FIELDS.map((stat) => (
+            <label
+              key={stat.key}
+              className="grid gap-1 text-sm font-medium text-stone-700"
+            >
+              {t[stat.labelKey]}
+              <select
+                value={form.baseStats?.[stat.key] || "1"}
+                onChange={(event) => updateBaseStat(stat.key, event.target.value)}
+                className="rounded-xl border border-stone-300 bg-white px-3 py-2 font-normal outline-none focus:border-stone-900"
+              >
+                {STAT_VALUE_OPTIONS.map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ))}
         </div>
       </div>
 
