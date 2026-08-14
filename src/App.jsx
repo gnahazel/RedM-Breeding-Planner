@@ -187,6 +187,11 @@ const translations = {
     personalityPlaceholder: "z. B. ruhig, mutig, temperamentvoll",
     soldFor: "Verkauft für",
     soldForPlaceholder: "z. B. 1500 $",
+    forSale: "Steht zum Verkauf",
+    filterForSale: "Verkaufsstatus filtern",
+    allSaleStatuses: "Alle Verkaufsstatus",
+    onlyForSale: "Nur Pferde zum Verkauf",
+    notForSale: "Nicht zum Verkauf",
     parentInfo: (sire, dam) => `Vater: ${sire} · Mutter: ${dam}`,
     deleteHorseConfirm: (name, childrenCount, pairingsCount) => {
       const lines = [`Möchtest du "${name}" wirklich löschen?`];
@@ -323,6 +328,11 @@ const translations = {
     filterPersonality: "Filter by personality",
     allPersonalities: "All personalities",
     soldFor: "Sold for",
+    forSale: "For sale",
+    filterForSale: "Filter sale status",
+    allSaleStatuses: "All sale statuses",
+    onlyForSale: "Only horses for sale",
+    notForSale: "Not for sale",
 
     horseDatabase: "Horse Database",
     horseDatabaseDescription:
@@ -796,6 +806,7 @@ const emptyHorseForm = {
   damId: "",
   availableForBreeding: true,
   ownershipStatus: "owned",
+  forSale: false,
   owner: "",
   imageDataUrl: "",
   notes: "",
@@ -830,6 +841,7 @@ const BACKUP_COLUMNS = [
   "plannedDate",
   "sharedAncestorIds",
   "breedType",
+  "forSale",
 ];
 
 function makeId(prefix) {
@@ -884,6 +896,7 @@ function makeBackupCsv(horses, pairings) {
     plannedDate: "",
     sharedAncestorIds: "",
     breedType: horse.breedType || "purebred",
+    forSale: horse.forSale ? "true" : "false",
   }));
 
   const pairingRows = pairings.map((pairing) => ({
@@ -911,6 +924,7 @@ function makeBackupCsv(horses, pairings) {
     plannedDate: pairing.plannedDate,
     sharedAncestorIds: (pairing.sharedAncestorIds || []).join("|"),
     breedType:"",
+    forSale: "",
   }));
 
   const rows = [BACKUP_COLUMNS, ...horseRows, ...pairingRows];
@@ -1054,6 +1068,7 @@ function parseBackupCsv(text, t) {
       owner: record.owner || "",
       notes: record.notes || "",
       imageDataUrl: record.imageDataUrl || "",
+      forSale: record.forSale === "true",
     }));
 
   const importedHorseIds = new Set(importedHorses.map((horse) => horse.id));
@@ -1292,6 +1307,7 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
       damId: sourceHorse.damId || "",
       availableForBreeding: Boolean(sourceHorse.availableForBreeding),
       ownershipStatus: sourceHorse.ownershipStatus || "owned",
+      forSale: Boolean(sourceHorse.forSale),
       owner: sourceHorse.owner || "",
       notes: sourceHorse.notes || "",
       imageDataUrl: sourceHorse.imageDataUrl || "",
@@ -1328,6 +1344,15 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
 
   function updateField(field, value) {
     setForm((current) => ({ ...current, [field]: value }));
+  }
+
+  function updateOwnershipStatus(value) {
+    setForm((current) => ({
+      ...current,
+      ownershipStatus: value,
+      forSale: value === "owned" ? current.forSale : false,
+      soldFor: value === "notOwned" ? current.soldFor : "",
+    }));
   }
 
   function handleImageUpload(event) {
@@ -1405,6 +1430,7 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
       geneModifier2: form.geneModifier2.trim().toUpperCase(),
       genePattern: form.genePattern.trim().toUpperCase(),
       owner: form.owner.trim(),
+      forSale: form.ownershipStatus === "owned" ? Boolean(form.forSale) : false,
       notes: form.notes.trim(),
       imageDataUrl: form.imageDataUrl || "",
       baseStats: getHorseBaseStats(form),
@@ -1684,13 +1710,25 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
         {t.ownershipStatus}
         <select
           value={form.ownershipStatus}
-          onChange={(event) => updateField("ownershipStatus", event.target.value)}
+          onChange={(event) => updateOwnershipStatus(event.target.value)}
           className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
         >
           <option value="owned">{t.ownershipOwned}</option>
           <option value="notOwned">{t.ownershipNotOwned}</option>
         </select>
       </label>
+
+      {form.ownershipStatus === "owned" && (
+        <label className="flex items-center gap-3 rounded-xl border border-stone-300 px-3 py-2 text-sm font-medium text-stone-700">
+          <input
+            type="checkbox"
+            checked={Boolean(form.forSale)}
+            onChange={(event) => updateField("forSale", event.target.checked)}
+            className="h-4 w-4"
+          />
+          {t.forSale}
+        </label>
+      )}
 
       {form.ownershipStatus === "notOwned" && (
         <label className="grid gap-1 text-sm font-medium text-stone-700">
@@ -1956,6 +1994,7 @@ function HorseSubGroup({
   const [damFilter, setDamFilter] = useState("");
   const [breedTypeFilter, setBreedTypeFilter] = useState("");
   const [personalityFilter, setPersonalityFilter] = useState("");
+  const [forSaleFilter, setForSaleFilter] = useState("");
 
   const genderOptions = useMemo(() => {
     return Array.from(new Set(horses.map((horse) => horse.sex).filter(Boolean)));
@@ -2019,6 +2058,14 @@ function HorseSubGroup({
       const matchesPersonality =
         !personalityFilter ||
         horse.personality?.trim() === personalityFilter;
+      const matchesForSale =
+        !forSaleFilter ||
+        (forSaleFilter === "forSale" &&
+          horse.ownershipStatus !== "notOwned" &&
+          Boolean(horse.forSale)) ||
+        (forSaleFilter === "notForSale" &&
+          horse.ownershipStatus !== "notOwned" &&
+          !Boolean(horse.forSale));
 
       const matchesGenes = geneFilters.every(
         (filterValue, position) =>
@@ -2029,6 +2076,7 @@ function HorseSubGroup({
         matchesGender &&
         matchesBreed &&
         matchesBreedType &&
+        matchesForSale &&
         matchesGenes &&
         matchesSire &&
         matchesDam &&
@@ -2051,6 +2099,7 @@ function HorseSubGroup({
     setDamFilter("");
     setBreedTypeFilter("");
     setPersonalityFilter("");
+    setForSaleFilter("");
   }
 
   return (
@@ -2125,6 +2174,19 @@ function HorseSubGroup({
                       {personality}
                     </option>
                   ))}
+                </select>
+              </label>
+
+              <label className="grid gap-1 text-sm font-medium text-stone-700">
+                {t.filterForSale}
+                <select
+                  value={forSaleFilter}
+                  onChange={(event) => setForSaleFilter(event.target.value)}
+                  className="rounded-xl border border-stone-300 bg-white px-3 py-2 font-normal outline-none focus:border-stone-900"
+                >
+                  <option value="">{t.allSaleStatuses}</option>
+                  <option value="forSale">{t.onlyForSale}</option>
+                  <option value="notForSale">{t.notForSale}</option>
                 </select>
               </label>
 
@@ -2329,6 +2391,14 @@ function HorseCard({ horse, horses, onToggleAvailability, onEditHorse, onDeleteH
           <p className="mt-1 text-xs text-stone-400">
             {t.parentInfo(sire?.name || t.unknownLower, dam?.name || t.unknownLower)}
           </p>
+
+          {horse.ownershipStatus !== "notOwned" && horse.forSale && (
+            <div className="mt-2">
+              <span className="rounded-full border border-green-300 bg-green-50 px-3 py-1 text-xs font-semibold text-green-800">
+                {t.forSale}
+              </span>
+            </div>
+          )}
 
           {horse.ownershipStatus === "notOwned" && horse.soldFor && (
             <div className="mt-2">
