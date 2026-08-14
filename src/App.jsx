@@ -2083,7 +2083,7 @@ function HorseSubGroup({
         matchesPersonality
       );
     });
-  }, [horses, genderFilter, breedFilter, geneFilters, sireFilter, damFilter, personalityFilter, breedTypeFilter]);
+  }, [horses, genderFilter, breedFilter, geneFilters, sireFilter, damFilter, personalityFilter, breedTypeFilter, forSaleFilter]);
 
   function updateGeneFilter(position, value) {
     setGeneFilters((current) =>
