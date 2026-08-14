@@ -10,6 +10,8 @@ const STORAGE_KEYS = {
 
 const translations = {
   de: {
+    searchHorse: "Pferd suchen",
+    searchHorsePlaceholder: "Name eingeben...",
     darkMode: "Dark mode",
     lightMode: "Light mode",
     appLabel: "RedM Stable Tool",
@@ -245,6 +247,8 @@ const translations = {
     },
   },
   en: {
+    searchHorse: "Search horse",
+    searchHorsePlaceholder: "Enter name...",
     darkMode: "Dark Mode",
     lightMode: "Light Mode",
     appLabel: "RedM Stable Tool",
@@ -1795,6 +1799,7 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
 
 function HorseList({ horses, onToggleAvailability, onEditHorse, onDeleteHorse, t }) {
   const [ownerFilter, setOwnerFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
 
   function getOwnerValue(horse) {
     return horse.owner?.trim() || "__unknown__";
@@ -1811,9 +1816,19 @@ function HorseList({ horses, onToggleAvailability, onEditHorse, onDeleteHorse, t
   }, [horses, t]);
 
   const filteredHorses = useMemo(() => {
-    if (ownerFilter === "all") return horses;
-    return horses.filter((horse) => getOwnerValue(horse) === ownerFilter);
-  }, [horses, ownerFilter]);
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+
+    return horses.filter((horse) => {
+      const matchesOwner =
+        ownerFilter === "all" || getOwnerValue(horse) === ownerFilter;
+
+      const matchesSearch =
+        !normalizedSearch ||
+        horse.name.toLowerCase().includes(normalizedSearch);
+
+      return matchesOwner && matchesSearch;
+    });
+  }, [horses, ownerFilter, searchTerm]);
 
   const breedingHorses = filteredHorses.filter(
     (horse) =>
@@ -1838,6 +1853,16 @@ function HorseList({ horses, onToggleAvailability, onEditHorse, onDeleteHorse, t
           <h2 className="text-xl font-semibold">{t.horseDatabase}</h2>
           <p className="text-sm text-white">{t.horseDatabaseDescription}</p>
         </div>
+
+        <label className="grid gap-1 text-xs font-semibold text-white">
+          {t.searchHorse}
+          <input
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            placeholder={t.searchHorsePlaceholder}
+            className="rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm font-normal text-black outline-none focus:border-stone-900"
+          />
+        </label>
 
         <div className="flex flex-wrap items-center gap-3">
           <label className="grid gap-1 text-xs font-semibold text-white">
@@ -1894,6 +1919,7 @@ function HorseList({ horses, onToggleAvailability, onEditHorse, onDeleteHorse, t
           onEditHorse={onEditHorse}
           onDeleteHorse={onDeleteHorse}
           t={t}
+          showForSaleFilter={false}
         />
       </div>
     </section>
@@ -1968,7 +1994,8 @@ function HorseGroup({
               onEditHorse={onEditHorse}
               onDeleteHorse={onDeleteHorse}
               t={t}
-              />
+              showForSaleFilter={false}
+            />
           </>
         )}
       </div>
@@ -1984,6 +2011,7 @@ function HorseSubGroup({
   onToggleAvailability,
   onEditHorse,
   onDeleteHorse,
+  showForSaleFilter = true,
   t,
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -2059,13 +2087,14 @@ function HorseSubGroup({
         !personalityFilter ||
         horse.personality?.trim() === personalityFilter;
       const matchesForSale =
+        !showForSaleFilter ||
         !forSaleFilter ||
         (forSaleFilter === "forSale" &&
-          horse.ownershipStatus !== "notOwned" &&
-          Boolean(horse.forSale)) ||
+          (horse.ownershipStatus || "owned") === "owned" &&
+          horseIsForSale) ||
         (forSaleFilter === "notForSale" &&
-          horse.ownershipStatus !== "notOwned" &&
-          !Boolean(horse.forSale));
+          (horse.ownershipStatus || "owned") === "owned" &&
+          !horseIsForSale);
 
       const matchesGenes = geneFilters.every(
         (filterValue, position) =>
@@ -2177,18 +2206,20 @@ function HorseSubGroup({
                 </select>
               </label>
 
-              <label className="grid gap-1 text-sm font-medium text-stone-700">
-                {t.filterForSale}
-                <select
-                  value={forSaleFilter}
-                  onChange={(event) => setForSaleFilter(event.target.value)}
-                  className="rounded-xl border border-stone-300 bg-white px-3 py-2 font-normal outline-none focus:border-stone-900"
-                >
-                  <option value="">{t.allSaleStatuses}</option>
-                  <option value="forSale">{t.onlyForSale}</option>
-                  <option value="notForSale">{t.notForSale}</option>
-                </select>
-              </label>
+              {showForSaleFilter && (
+                <label className="grid gap-1 text-sm font-medium text-stone-700">
+                  {t.filterForSale}
+                  <select
+                    value={forSaleFilter}
+                    onChange={(event) => setForSaleFilter(event.target.value)}
+                    className="rounded-xl border border-stone-300 bg-white px-3 py-2 font-normal outline-none focus:border-stone-900"
+                  >
+                    <option value="">{t.allSaleStatuses}</option>
+                    <option value="forSale">{t.onlyForSale}</option>
+                    <option value="notForSale">{t.notForSale}</option>
+                  </select>
+                </label>
+              )}
 
               <label className="grid gap-1 text-sm font-medium text-stone-700">
                 {t.filterBreedType}
@@ -3064,6 +3095,7 @@ function PedigreeViewer({ horses, t }) {
   const [selectedHorseId, setSelectedHorseId] = useState("");
   const [showPedigree, setShowPedigree] = useState(false);
   const pedigreeExportRef = useRef(null);
+  const [pedigreeSearchTerm, setPedigreeSearchTerm] = useState("");
 
   const sortedHorses = useMemo(
     () => [...horses].sort((first, second) => first.name.localeCompare(second.name)),
@@ -3071,6 +3103,16 @@ function PedigreeViewer({ horses, t }) {
   );
 
   const selectedHorse = findHorse(horses, selectedHorseId);
+  const pedigreeHorseOptions = useMemo(() => {
+    const normalizedSearch = pedigreeSearchTerm.trim().toLowerCase();
+
+    return horses
+      .filter((horse) => {
+        if (!normalizedSearch) return true;
+        return horse.name.toLowerCase().includes(normalizedSearch);
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [horses, pedigreeSearchTerm]);
   async function handleExportPedigree() {
     if (!selectedHorse || !pedigreeExportRef.current) return;
 
@@ -3104,11 +3146,21 @@ function PedigreeViewer({ horses, t }) {
       </div>
 
       <div className="grid gap-3">
+        <label className="grid gap-1 text-sm font-semibold text-stone-700">
+          {t.searchHorse}
+          <input
+            value={pedigreeSearchTerm}
+            onChange={(event) => setPedigreeSearchTerm(event.target.value)}
+            placeholder={t.searchHorsePlaceholder}
+            className="rounded-xl border border-stone-300 bg-white px-3 py-2 font-normal outline-none focus:border-stone-900"
+          />
+        </label>
+
         <PedigreeHorseDropdown
           label={t.selectHorse}
           value={selectedHorseId}
           onChange={handleSelect}
-          horses={sortedHorses}
+          horses={pedigreeHorseOptions}
           placeholder={t.selectHorsePlaceholder}
           t={t}
         />
