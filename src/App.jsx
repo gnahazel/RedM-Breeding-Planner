@@ -85,6 +85,14 @@ const translations = {
     resetFilters: "Filter zurücksetzen",
     resetSelection: "Auswahl zurücksetzen",
     noMatchingHorse: "Kein passendes Pferd gefunden.",
+    breedType: "Zuchtart",
+    purebred: "Purebred",
+    crossbred: "Crossbred",
+    filterBreedType: "Nach Zuchtart filtern",
+    allBreedTypes: "Alle Zuchtarten",
+    filterPersonality: "Nach Persönlichkeit filtern",
+    allPersonalities: "Alle Persönlichkeiten",
+    soldFor: "Verkauft für",
 
     horseDatabase: "Pferdedatenbank",
     horseDatabaseDescription:
@@ -105,6 +113,14 @@ const translations = {
       "Pferde, die nicht zur Zucht verfügbar sind oder nur für die Abstammung gespeichert werden.",
     noHorsesInCategory: "In dieser Kategorie ist noch kein Pferd eingetragen.",
     noHorsesHere: "Hier ist noch kein Pferd eingetragen.",
+
+    filterGender: "Geschlecht filtern",
+    allGenders: "Alle Geschlechter",
+    filterSire: "Nach Vater filtern",
+    filterDam: "Nach Mutter filtern",
+    allSires: "Alle Väter",
+    allDams: "Alle Mütter",
+    unknownParent: "Unbekannt",
 
     horseImage: "Pferdebild",
     downloadImage: "Bild herunterladen",
@@ -139,8 +155,8 @@ const translations = {
     ownerPlaceholder: "z. B. Kira",
     ownershipStatus: "Besitzstatus",
     ownershipOwned: "In Besitz",
-    ownershipNotOwned: "Nicht mehr in Besitz",
-    notOwnedHorses: "Nicht mehr in Besitz",
+    ownershipNotOwned: "Verkaufte Pferde",
+    notOwnedHorses: "Verkaufte Pferde",
     notOwnedHorsesDescription: "Pferde, die nicht mehr in deinem Besitz sind.",
     notes: "Notizen",
     notesPlaceholder: "z. B. RP-Linie, besondere Merkmale, Zuchtziel ...",
@@ -161,12 +177,16 @@ const translations = {
     allOwners: "Alle Besitzer",
     unknownOwnerFilter: "Unbekannter Besitzer",
     baseStats: "Base Stats",
-    statHealth: "Health",
-    statStamina: "Stamina",
-    statCourage: "Courage",
-    statAgility: "Agility",
-    statSpeed: "Speed",
-    statAcceleration: "Acceleration",
+    statHealth: "Gesundheit",
+    statStamina: "Ausdauer",
+    statCourage: "Mut",
+    statAgility: "Beweglichkeit",
+    statSpeed: "Geschwindigkeit",
+    statAcceleration: "Beschleunigung",
+    personality: "Persönlichkeit",
+    personalityPlaceholder: "z. B. ruhig, mutig, temperamentvoll",
+    soldFor: "Verkauft für",
+    soldForPlaceholder: "z. B. 1500 $",
     parentInfo: (sire, dam) => `Vater: ${sire} · Mutter: ${dam}`,
     deleteHorseConfirm: (name, childrenCount, pairingsCount) => {
       const lines = [`Möchtest du "${name}" wirklich löschen?`];
@@ -295,6 +315,14 @@ const translations = {
     resetFilters: "Reset filters",
     resetSelection: "Reset selection",
     noMatchingHorse: "No matching horse found.",
+    breedType: "Breed type",
+    purebred: "Purebred",
+    crossbred: "Crossbred",
+    filterBreedType: "Filter by breed type",
+    allBreedTypes: "All breed types",
+    filterPersonality: "Filter by personality",
+    allPersonalities: "All personalities",
+    soldFor: "Sold for",
 
     horseDatabase: "Horse Database",
     horseDatabaseDescription:
@@ -315,6 +343,14 @@ const translations = {
       "Horses that are not available for breeding or are saved only for pedigree records.",
     noHorsesInCategory: "No horse has been added to this category yet.",
     noHorsesHere: "No horse has been added here yet.",
+
+    filterGender: "Filter gender",
+    allGenders: "All genders",
+    filterSire: "Filter by sire",
+    filterDam: "Filter by dam",
+    allSires: "All sires",
+    allDams: "All dams",
+    unknownParent: "Unknown",
 
     horseImage: "Horse image",
     downloadImage: "Download image",
@@ -348,8 +384,8 @@ const translations = {
     ownerPlaceholder: "e.g. Kira",
     ownershipStatus: "Ownership status",
     ownershipOwned: "Owned",
-    ownershipNotOwned: "No longer owned",
-    notOwnedHorses: "No longer owned",
+    ownershipNotOwned: "Sold Horses",
+    notOwnedHorses: "Sold Horses",
     notOwnedHorsesDescription: "Horses that are no longer in your ownership.",
     notes: "Notes",
     notesPlaceholder: "e.g. RP line, special traits, breeding goal ...",
@@ -376,6 +412,10 @@ const translations = {
     statAgility: "Agility",
     statSpeed: "Speed",
     statAcceleration: "Acceleration",
+    personality: "Personality",
+    personalityPlaceholder: "e.g. calm, brave, spirited",
+    soldFor: "Sold for",
+    soldForPlaceholder: "e.g. $1500",
     parentInfo: (sire, dam) => `Sire: ${sire} · Dam: ${dam}`,
     deleteHorseConfirm: (name, childrenCount, pairingsCount) => {
       const lines = [`Do you really want to delete "${name}"?`];
@@ -689,6 +729,17 @@ function getHorseGeneParts(horse) {
   };
 }
 
+function getGeneFilterParts(horse) {
+  const parts = getHorseGeneParts(horse);
+
+  return [
+    parts.baseColor,
+    parts.modifier1,
+    parts.modifier2,
+    parts.pattern,
+  ];
+}
+
 function buildGeneCode({ geneBaseColor, geneModifier1, geneModifier2, genePattern }) {
   return [geneBaseColor, geneModifier1, geneModifier2, genePattern]
     .map((part) => String(part || "").trim().toUpperCase())
@@ -748,7 +799,10 @@ const emptyHorseForm = {
   owner: "",
   imageDataUrl: "",
   notes: "",
+  personality: "",
+  soldFor: "",
   baseStats: { ...DEFAULT_BASE_STATS },
+  breedType: "purebred",
 };
 
 const BACKUP_COLUMNS = [
@@ -775,6 +829,7 @@ const BACKUP_COLUMNS = [
   "status",
   "plannedDate",
   "sharedAncestorIds",
+  "breedType",
 ];
 
 function makeId(prefix) {
@@ -828,6 +883,7 @@ function makeBackupCsv(horses, pairings) {
     status: "",
     plannedDate: "",
     sharedAncestorIds: "",
+    breedType: horse.breedType || "purebred",
   }));
 
   const pairingRows = pairings.map((pairing) => ({
@@ -854,6 +910,7 @@ function makeBackupCsv(horses, pairings) {
     status: pairing.status,
     plannedDate: pairing.plannedDate,
     sharedAncestorIds: (pairing.sharedAncestorIds || []).join("|"),
+    breedType:"",
   }));
 
   const rows = [BACKUP_COLUMNS, ...horseRows, ...pairingRows];
@@ -1016,6 +1073,7 @@ function parseBackupCsv(text, t) {
       status: record.status || "planned",
       plannedDate: record.plannedDate || new Date().toISOString().slice(0, 10),
       notes: record.notes || "",
+      breedType: record.breedType || "purebred",
       sharedAncestorIds: record.sharedAncestorIds
         ? record.sharedAncestorIds.split("|").filter(Boolean)
         : [],
@@ -1238,8 +1296,25 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
       notes: sourceHorse.notes || "",
       imageDataUrl: sourceHorse.imageDataUrl || "",
       baseStats: getHorseBaseStats(sourceHorse),
+      personality: sourceHorse.personality || "",
+      soldFor: sourceHorse.soldFor || "",
+      breedType: sourceHorse.breedType || "purebred",
     });
   }, [editingHorse, prefillHorse]);
+
+  const parentHorseOptions = horses.filter(
+    (horse) =>
+      horse.id !== editingHorse?.id &&
+      (horse.ownershipStatus || "owned") === "owned"
+  );
+
+  const sireOptions = parentHorseOptions.filter(
+    (horse) => horse.sex === "stallion"
+  );
+
+  const damOptions = parentHorseOptions.filter(
+    (horse) => horse.sex === "mare"
+  );
 
   function updateBaseStat(statKey, value) {
     setForm((current) => ({
@@ -1335,6 +1410,11 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
       baseStats: getHorseBaseStats(form),
       sireId: form.sireId || null,
       damId: form.damId || null,
+      availableForBreeding: Boolean(form.availableForBreeding),
+      ownershipStatus: form.ownershipStatus || "owned",
+      personality: form.personality.trim(),
+      soldFor: form.soldFor.trim(),
+      breedType: form.breedType || "purebred",
     };
 
     onSaveHorse(savedHorse);
@@ -1342,10 +1422,17 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
   }
 
   const possibleSires = horses.filter(
-    (horse) => horse.sex === "stallion" && horse.id !== editingHorse?.id
+    (horse) =>
+      horse.sex === "stallion" &&
+      horse.id !== editingHorse?.id &&
+      (horse.ownershipStatus || "owned") === "owned"
   );
+
   const possibleDams = horses.filter(
-    (horse) => horse.sex === "mare" && horse.id !== editingHorse?.id
+    (horse) =>
+      horse.sex === "mare" &&
+      horse.id !== editingHorse?.id &&
+      (horse.ownershipStatus || "owned") === "owned"
   );
 
   return (
@@ -1406,6 +1493,28 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
         </label>
 
         <label className="grid gap-1 text-sm font-medium text-stone-700">
+          {t.breedType}
+          <select
+            value={form.breedType}
+            onChange={(event) => updateField("breedType", event.target.value)}
+            className="rounded-xl border border-stone-300 bg-white px-3 py-2 font-normal outline-none focus:border-stone-900"
+          >
+            <option value="purebred">{t.purebred}</option>
+            <option value="crossbred">{t.crossbred}</option>
+          </select>
+        </label>
+
+        <label className="grid gap-1 text-sm font-medium text-stone-700 md:col-span-2">
+          {t.personality}
+          <input
+            value={form.personality}
+            onChange={(event) => updateField("personality", event.target.value)}
+            placeholder={t.personalityPlaceholder}
+            className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
+          />
+        </label>
+
+        <label className="grid gap-1 text-sm font-medium text-stone-700 md:col-span-2">
           {t.color}
           <input
             value={form.color}
@@ -1583,6 +1692,18 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
         </select>
       </label>
 
+      {form.ownershipStatus === "notOwned" && (
+        <label className="grid gap-1 text-sm font-medium text-stone-700">
+          {t.soldFor}
+          <input
+            value={form.soldFor}
+            onChange={(event) => updateField("soldFor", event.target.value)}
+            placeholder={t.soldForPlaceholder}
+            className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
+          />
+        </label>
+      )}
+
       <div className="grid gap-2 md:col-span-2">
         <p className="text-sm font-medium text-stone-700">{t.horseImage}</p>
 
@@ -1656,80 +1777,87 @@ function HorseList({ horses, onToggleAvailability, onEditHorse, onDeleteHorse, t
     return horses.filter((horse) => getOwnerValue(horse) === ownerFilter);
   }, [horses, ownerFilter]);
 
-  const stallions = filteredHorses.filter((horse) => horse.sex === "stallion");
-  const mares = filteredHorses.filter((horse) => horse.sex === "mare");
-  const others = filteredHorses.filter((horse) => horse.sex !== "stallion" && horse.sex !== "mare");
+  const breedingHorses = filteredHorses.filter(
+    (horse) =>
+      (horse.ownershipStatus || "owned") === "owned" &&
+      horse.availableForBreeding
+  );
+
+  const archiveHorses = filteredHorses.filter(
+    (horse) =>
+      (horse.ownershipStatus || "owned") === "owned" &&
+      !horse.availableForBreeding
+  );
+
+  const notOwnedHorses = filteredHorses.filter(
+    (horse) => horse.ownershipStatus === "notOwned"
+  );
 
   return (
-    <section className="border border-black bg-transparent p-5 shadow-sm">
-      <div className="-mx-5 -mt-5 mb-5 flex items-start justify-between gap-4 border-b border-[#363542] bg-[#363542] px-5 py-4 text-white">
-          <div>
-            <h2 className="text-xl font-semibold text-white">{t.horseDatabase}</h2>
-            <p className="text-sm text-white">{t.horseDatabaseDescription}</p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <label className="grid gap-1 text-xs font-semibold text-white">
-              {t.ownerFilter}
-              <select
-                value={ownerFilter}
-                onChange={(event) => setOwnerFilter(event.target.value)}
-                className="rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm font-normal text-stone-900 outline-none focus:border-stone-900"
-              >
-                <option value="all">{t.allOwners}</option>
-                {ownerOptions.map((ownerValue) => (
-                  <option key={ownerValue} value={ownerValue}>
-                    {getOwnerLabel(ownerValue)}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <span className="rounded-full bg-white px-3 py-1 text-sm text-stone-700 shadow-sm">
-              {t.horsesCount(filteredHorses.length)}
-            </span>
-          </div>
+    <section className="border border-black bg-white">
+      <div className="flex flex-wrap items-center justify-between gap-4 bg-[#363542] px-5 py-4 text-white">
+        <div>
+          <h2 className="text-xl font-semibold">{t.horseDatabase}</h2>
+          <p className="text-sm text-white">{t.horseDatabaseDescription}</p>
         </div>
 
+        <div className="flex flex-wrap items-center gap-3">
+          <label className="grid gap-1 text-xs font-semibold text-white">
+            {t.ownerFilter}
+            <select
+              value={ownerFilter}
+              onChange={(event) => setOwnerFilter(event.target.value)}
+              className="rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm font-normal text-black outline-none focus:border-stone-900"
+            >
+              <option value="all">{t.allOwners}</option>
+              {ownerOptions.map((ownerValue) => (
+                <option key={ownerValue} value={ownerValue}>
+                  {getOwnerLabel(ownerValue)}
+                </option>
+              ))}
+            </select>
+          </label>
 
-        <div className="mt-4 grid items-start gap-4 md:grid-cols-2">
-          <HorseGroup
-            title={t.stallions}
-            description={t.stallionsDescription}
-            horses={stallions}
-            allHorses={horses}
-            onToggleAvailability={onToggleAvailability}
-            onEditHorse={onEditHorse}
-            onDeleteHorse={onDeleteHorse}          
-            t={t}
-          />
-
-          <HorseGroup
-            title={t.mares}
-            description={t.maresDescription}
-            horses={mares}
-            allHorses={horses}
-            onToggleAvailability={onToggleAvailability}
-            onEditHorse={onEditHorse}
-            onDeleteHorse={onDeleteHorse}            
-            t={t}
-          />
-
-          {others.length > 0 && (
-            <div className="md:col-span-2">
-              <HorseGroup
-                title={t.others}
-                description={t.othersDescription}
-                horses={others}
-                allHorses={horses}
-                onToggleAvailability={onToggleAvailability}
-                onEditHorse={onEditHorse}
-                onDeleteHorse={onDeleteHorse}
-                t={t}
-              />
-            </div>
-          )}
+          <span className="rounded-full bg-white px-3 py-1 text-sm text-black shadow-sm">
+            {t.horsesCount(filteredHorses.length)}
+          </span>
         </div>
+      </div>
+
+      <div className="grid gap-4 p-5">
+        <HorseSubGroup
+          title={t.breedingHorses}
+          description={t.breedingHorsesDescription}
+          horses={breedingHorses}
+          allHorses={horses}
+          onToggleAvailability={onToggleAvailability}
+          onEditHorse={onEditHorse}
+          onDeleteHorse={onDeleteHorse}
+          t={t}
+        />
+
+        <HorseSubGroup
+          title={t.archiveHorses}
+          description={t.archiveHorsesDescription}
+          horses={archiveHorses}
+          allHorses={horses}
+          onToggleAvailability={onToggleAvailability}
+          onEditHorse={onEditHorse}
+          onDeleteHorse={onDeleteHorse}
+          t={t}
+        />
+
+        <HorseSubGroup
+          title={t.notOwnedHorses}
+          description={t.notOwnedHorsesDescription}
+          horses={notOwnedHorses}
+          allHorses={horses}
+          onToggleAvailability={onToggleAvailability}
+          onEditHorse={onEditHorse}
+          onDeleteHorse={onDeleteHorse}
+          t={t}
+        />
+      </div>
     </section>
   );
 }
@@ -1818,56 +1946,292 @@ function HorseSubGroup({
   onToggleAvailability,
   onEditHorse,
   onDeleteHorse,
-  defaultOpen = false,
   t,
 }) {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
+  const [isOpen, setIsOpen] = useState(false);
+  const [genderFilter, setGenderFilter] = useState("");
+  const [breedFilter, setBreedFilter] = useState("");
+  const [geneFilters, setGeneFilters] = useState(["", "", "", ""]);
+  const [sireFilter, setSireFilter] = useState("");
+  const [damFilter, setDamFilter] = useState("");
+  const [breedTypeFilter, setBreedTypeFilter] = useState("");
+  const [personalityFilter, setPersonalityFilter] = useState("");
+
+  const genderOptions = useMemo(() => {
+    return Array.from(new Set(horses.map((horse) => horse.sex).filter(Boolean)));
+  }, [horses]);
+
+  const breedOptions = useMemo(() => {
+    return Array.from(
+      new Set(horses.map((horse) => horse.breed).filter(Boolean))
+    ).sort();
+  }, [horses]);
+
+  const personalityOptions = useMemo(() => {
+    return Array.from(
+      new Set(
+        horses
+          .map((horse) => horse.personality?.trim())
+          .filter(Boolean)
+      )
+    ).sort();
+  }, [horses]);
+
+  const geneOptionsByPosition = useMemo(() => {
+    return [0, 1, 2, 3].map((position) =>
+      Array.from(
+        new Set(
+          horses
+            .map((horse) => getGeneFilterParts(horse)[position])
+            .filter(Boolean)
+        )
+      ).sort()
+    );
+  }, [horses]);
+
+  const sireOptions = useMemo(() => {
+    return Array.from(
+      new Set(horses.map((horse) => horse.sireId).filter(Boolean))
+    )
+      .map((sireId) => findHorse(allHorses, sireId))
+      .filter(Boolean)
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [horses, allHorses]);
+
+  const damOptions = useMemo(() => {
+    return Array.from(
+      new Set(horses.map((horse) => horse.damId).filter(Boolean))
+    )
+      .map((damId) => findHorse(allHorses, damId))
+      .filter(Boolean)
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [horses, allHorses]);
+
+  const filteredHorses = useMemo(() => {
+    return horses.filter((horse) => {
+      const horseGenes = getGeneFilterParts(horse);
+      const matchesBreedType =
+        !breedTypeFilter || (horse.breedType || "purebred") === breedTypeFilter;
+      const matchesGender = !genderFilter || horse.sex === genderFilter;
+      const matchesBreed = !breedFilter || horse.breed === breedFilter;
+      const matchesSire = !sireFilter || horse.sireId === sireFilter;
+      const matchesDam = !damFilter || horse.damId === damFilter;
+      const matchesPersonality =
+        !personalityFilter ||
+        horse.personality?.trim() === personalityFilter;
+
+      const matchesGenes = geneFilters.every(
+        (filterValue, position) =>
+          !filterValue || horseGenes[position] === filterValue
+      );
+
+      return (
+        matchesGender &&
+        matchesBreed &&
+        matchesBreedType &&
+        matchesGenes &&
+        matchesSire &&
+        matchesDam &&
+        matchesPersonality
+      );
+    });
+  }, [horses, genderFilter, breedFilter, geneFilters, sireFilter, damFilter, personalityFilter, breedTypeFilter]);
+
+  function updateGeneFilter(position, value) {
+    setGeneFilters((current) =>
+      current.map((item, index) => (index === position ? value : item))
+    );
+  }
+
+  function resetFilters() {
+    setGenderFilter("");
+    setBreedFilter("");
+    setGeneFilters(["", "", "", ""]);
+    setSireFilter("");
+    setDamFilter("");
+    setBreedTypeFilter("");
+    setPersonalityFilter("");
+  }
 
   return (
-    <div className="relative bg-transparent">
-      <button
-        type="button"
-        onClick={() => setIsOpen((current) => !current)}
-        className="flex w-full items-center justify-between gap-3 rounded-xl border border-black bg-transparent px-5 py-4 text-left text-stone-900 transition hover:bg-stone-50"
-      >
+      <div className="horse-subgroup rounded-xl border border-stone-300 bg-white">
+        <button
+          type="button"
+          onClick={() => setIsOpen((current) => !current)}
+          className="horse-subgroup-toggle flex w-full items-center justify-between gap-3 rounded-xl bg-white px-5 py-4 text-left text-stone-900 transition hover:bg-stone-50 focus:outline-none"
+        >
         <div>
-          <h4 className="font-semibold text-stone-800">{title}</h4>
-          <p className="text-sm text-stone-500">{description}</p>
+          <h4 className="font-semibold">{title}</h4>
+          <p className="text-sm text-stone-600">{description}</p>
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="rounded-full bg-white px-3 py-1 text-sm text-stone-700 shadow-sm">{horses.length}</span>
-          <span className="text-sm font-semibold text-stone-500">{isOpen ? "▲" : "▼"}</span>
+          <span className="rounded-full bg-stone-100 px-3 py-1 text-sm text-stone-900 shadow-sm">
+            {isOpen && filteredHorses.length !== horses.length
+              ? `${filteredHorses.length}/${horses.length}`
+              : horses.length}
+          </span>
+
+          <span className="text-stone-500">{isOpen ? "▲" : "▼"}</span>
         </div>
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 right-0 top-full z-30 mt-2 rounded-xl border border-stone-300 bg-white shadow-lg">
-          <div className="flex justify-center py-2 text-stone-500">⌃</div>
+        <div className="border-t border-stone-200">
+          <div className="grid gap-3 border-b border-stone-200 bg-white p-4">
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+              <label className="grid gap-1 text-sm font-medium text-stone-700">
+                {t.filterGender}
+                <select
+                  value={genderFilter}
+                  onChange={(event) => setGenderFilter(event.target.value)}
+                  className="rounded-xl border border-stone-300 bg-white px-3 py-2 font-normal outline-none focus:border-stone-900"
+                >
+                  <option value="">{t.allGenders}</option>
+                  {genderOptions.map((sex) => (
+                    <option key={sex} value={sex}>
+                      {t.sexLabels[sex] || sex}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-          <div className="max-h-80 overflow-y-auto px-3 pb-2 pr-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {horses.length === 0 ? (
-              <p className="rounded-xl border border-dashed border-stone-300 bg-white p-4 text-sm text-stone-500">
-                {t.noHorsesHere}
-              </p>
-            ) : (
-              <div className="grid gap-3">
-                {horses.map((horse) => (
-                  <HorseCard
-                    key={horse.id}
-                    horse={horse}
-                    horses={allHorses}
-                    onToggleAvailability={onToggleAvailability}
-                    onEditHorse={onEditHorse}
-                    onDeleteHorse={onDeleteHorse}
-                    t={t}
-                  />
-                ))}
-              </div>
-            )}
+              <label className="grid gap-1 text-sm font-medium text-stone-700">
+                {t.filterBreed}
+                <select
+                  value={breedFilter}
+                  onChange={(event) => setBreedFilter(event.target.value)}
+                  className="rounded-xl border border-stone-300 bg-white px-3 py-2 font-normal outline-none focus:border-stone-900"
+                >
+                  <option value="">{t.allBreeds}</option>
+                  {breedOptions.map((breed) => (
+                    <option key={breed} value={breed}>
+                      {breed}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="grid gap-1 text-sm font-medium text-stone-700">
+                {t.filterPersonality}
+                <select
+                  value={personalityFilter}
+                  onChange={(event) => setPersonalityFilter(event.target.value)}
+                  className="rounded-xl border border-stone-300 bg-white px-3 py-2 font-normal outline-none focus:border-stone-900"
+                >
+                  <option value="">{t.allPersonalities}</option>
+                  {personalityOptions.map((personality) => (
+                    <option key={personality} value={personality}>
+                      {personality}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="grid gap-1 text-sm font-medium text-stone-700">
+                {t.filterBreedType}
+                <select
+                  value={breedTypeFilter}
+                  onChange={(event) => setBreedTypeFilter(event.target.value)}
+                  className="rounded-xl border border-stone-300 bg-white px-3 py-2 font-normal outline-none focus:border-stone-900"
+                >
+                  <option value="">{t.allBreedTypes}</option>
+                  <option value="purebred">{t.purebred}</option>
+                  <option value="crossbred">{t.crossbred}</option>
+                </select>
+              </label>
+
+              <label className="grid gap-1 text-sm font-medium text-stone-700">
+                {t.filterSire}
+                <select
+                  value={sireFilter}
+                  onChange={(event) => setSireFilter(event.target.value)}
+                  className="rounded-xl border border-stone-300 bg-white px-3 py-2 font-normal outline-none focus:border-stone-900"
+                >
+                  <option value="">{t.allSires}</option>
+                  {sireOptions.map((sire) => (
+                    <option key={sire.id} value={sire.id}>
+                      {sire.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="grid gap-1 text-sm font-medium text-stone-700">
+                {t.filterDam}
+                <select
+                  value={damFilter}
+                  onChange={(event) => setDamFilter(event.target.value)}
+                  className="rounded-xl border border-stone-300 bg-white px-3 py-2 font-normal outline-none focus:border-stone-900"
+                >
+                  <option value="">{t.allDams}</option>
+                  {damOptions.map((dam) => (
+                    <option key={dam.id} value={dam.id}>
+                      {dam.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+              {[
+                t.filterBaseColor,
+                t.filterModifier1,
+                t.filterModifier2,
+                t.filterPattern,
+              ].map((label, position) => (
+                <label
+                  key={label}
+                  className="grid gap-1 text-sm font-medium text-stone-700"
+                >
+                  {label}
+                  <select
+                    value={geneFilters[position]}
+                    onChange={(event) =>
+                      updateGeneFilter(position, event.target.value)
+                    }
+                    className="rounded-xl border border-stone-300 bg-white px-3 py-2 font-normal outline-none focus:border-stone-900"
+                  >
+                    <option value="">{t.allOptions}</option>
+                    {geneOptionsByPosition[position].map((genePart) => (
+                      <option key={genePart} value={genePart}>
+                        {genePart}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="w-fit rounded-xl bg-stone-100 px-3 py-2 text-xs font-semibold text-stone-700 hover:bg-stone-200"
+            >
+              {t.resetFilters}
+            </button>
           </div>
 
-          <div className="flex justify-center py-2 text-stone-500">⌄</div>
+          <div className="horse-subgroup-list grid gap-3 bg-white p-4">
+            {filteredHorses.length > 0 ? (
+              filteredHorses.map((horse) => (
+                <HorseCard
+                  key={horse.id}
+                  horse={horse}
+                  horses={allHorses}
+                  onToggleAvailability={onToggleAvailability}
+                  onEditHorse={onEditHorse}
+                  onDeleteHorse={onDeleteHorse}
+                  t={t}
+                />
+              ))
+            ) : (
+              <p className="rounded-xl border border-dashed border-stone-300 px-4 py-6 text-sm text-stone-500">
+                {t.noMatchingHorse}
+              </p>
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -1948,7 +2312,7 @@ function HorseCard({ horse, horses, onToggleAvailability, onEditHorse, onDeleteH
   const [showImage, setShowImage] = useState(false);
 
   return (
-    <article className="rounded-xl border border-black bg-transparent p-4">
+    <article className="horse-card rounded-xl border border-stone-300 bg-white p-4 text-stone-900">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h3 className="font-semibold text-stone-900">{horse.name}</h3>
@@ -1965,6 +2329,14 @@ function HorseCard({ horse, horses, onToggleAvailability, onEditHorse, onDeleteH
           <p className="mt-1 text-xs text-stone-400">
             {t.parentInfo(sire?.name || t.unknownLower, dam?.name || t.unknownLower)}
           </p>
+
+          {horse.ownershipStatus === "notOwned" && horse.soldFor && (
+            <div className="mt-2">
+              <span className="rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-900">
+                {t.soldFor}: {horse.soldFor}
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -2050,6 +2422,7 @@ function HorseSelect({ label, value, onChange, horses, placeholder, t }) {
   const [isOpen, setIsOpen] = useState(false);
   const [breedFilter, setBreedFilter] = useState("");
   const [geneFilters, setGeneFilters] = useState(["", "", "", ""]);
+  const [breedTypeFilter, setBreedTypeFilter] = useState("");
   const dropdownRef = useRef(null);
 
   const selectedHorse = findHorse(horses, value);
@@ -2106,9 +2479,12 @@ function HorseSelect({ label, value, onChange, horses, placeholder, t }) {
         return horseGenes[index] === filterValue;
       });
 
-      return matchesBreed && matchesGenes;
+      const matchesBreedType =
+        !breedTypeFilter || (horse.breedType || "purebred") === breedTypeFilter;
+
+      return matchesBreed && matchesGenes && matchesBreedType;
     });
-  }, [horses, breedFilter, geneFilters]);
+  }, [horses, breedFilter, geneFilters, breedTypeFilter]);
 
   function updateGeneFilter(index, value) {
     setGeneFilters((current) =>
@@ -2121,6 +2497,7 @@ function HorseSelect({ label, value, onChange, horses, placeholder, t }) {
   function resetFilters() {
     setBreedFilter("");
     setGeneFilters(["", "", "", ""]);
+    setBreedTypeFilter("");
   }
 
   function resetSelection() {
@@ -2167,6 +2544,19 @@ function HorseSelect({ label, value, onChange, horses, placeholder, t }) {
                       {breed}
                     </option>
                   ))}
+                </select>
+              </label>
+
+              <label className="grid gap-1 text-sm font-medium text-stone-700">
+                {t.filterBreedType}
+                <select
+                  value={breedTypeFilter}
+                  onChange={(event) => setBreedTypeFilter(event.target.value)}
+                  className="rounded-xl border border-stone-300 bg-white px-3 py-2 font-normal outline-none focus:border-stone-900"
+                >
+                  <option value="">{t.allBreedTypes}</option>
+                  <option value="purebred">{t.purebred}</option>
+                  <option value="crossbred">{t.crossbred}</option>
                 </select>
               </label>
 
@@ -2840,8 +3230,18 @@ function PedigreeVisualCard({ node, t }) {
       {horse ? (
         <>
           <h4 className="font-semibold text-stone-900">{horse.name}</h4>
-          <div className="mt-1">
+          <div className="mt-1 flex flex-wrap items-center gap-2">
             <SexBadge sex={horse.sex} t={t} />
+
+            <span className="text-sm text-stone-500">
+              {horse.breed || t.breedUnknown} · {horse.color || t.colorUnknown}
+            </span>
+
+            <span className="rounded-full border border-stone-300 bg-stone-50 px-2.5 py-1 text-xs font-semibold text-stone-700">
+              {horse.breedType === "crossbred" ? t.crossbred : t.purebred}
+            </span>
+
+            <GeneBadges horse={horse} t={t} />
           </div>
           <p className="mt-1 text-xs text-stone-500">{relationLabel}</p>
           <dl className="mt-2 grid gap-1 text-xs text-stone-700">
@@ -3079,6 +3479,12 @@ export default function App() {
     name: "",
     sex: "mare",
     breed: mare.breed || stallion.breed || "",
+    breedType:
+      stallion.breed &&
+      mare.breed &&
+      stallion.breed.trim().toLowerCase() !== mare.breed.trim().toLowerCase()
+        ? "crossbred"
+        : "purebred",
     color: "",
     genes: "",
     geneBaseColor: "",

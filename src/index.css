@@ -139,3 +139,36 @@
 .app-dark .text-stone-300 {
   color: #bdb6aa;
 }
+
+.app-dark .horse-subgroup {
+  background-color: #12111a;
+  border-color: #2f2d3a;
+}
+
+.app-dark .horse-subgroup-toggle {
+  background-color: #12111a;
+  color: #f5f1ea;
+}
+
+.app-dark .horse-subgroup-toggle:hover {
+  background-color: #1c1b27;
+}
+
+.app-dark .horse-subgroup-toggle p {
+  color: #c9c2b8;
+}
+
+.app-dark .horse-subgroup-count {
+  background-color: #242331;
+  color: #ffffff;
+}
+
+.app-dark .horse-subgroup-arrow {
+  color: #d7c7a1;
+}
+
+.app-dark .horse-subgroup-content,
+.app-dark .horse-subgroup-filters {
+  background-color: #12111a;
+  border-color: #2f2d3a;
+}
