@@ -1,1 +1,141 @@
 @import "tailwindcss";
+
+.app-dark {
+  background: #111018;
+  color: #f5f1ea;
+}
+
+.app-dark .bg-stone-100,
+.app-dark .bg-stone-50 {
+  background-color: #181722;
+}
+
+.app-dark .bg-white {
+  background-color: #242331;
+}
+
+.app-dark .text-stone-900,
+.app-dark .text-stone-800,
+.app-dark .text-stone-700 {
+  color: #f5f1ea;
+}
+
+.app-dark .text-stone-600,
+.app-dark .text-stone-500 {
+  color: #c9c2b8;
+}
+
+.app-dark .border-stone-100,
+.app-dark .border-stone-200,
+.app-dark .border-stone-300 {
+  border-color: #3b3948;
+}
+
+.app-dark input,
+.app-dark select,
+.app-dark textarea {
+  background-color: #181722;
+  color: #f5f1ea;
+  border-color: #4a4858;
+}
+
+.app-dark input::placeholder,
+.app-dark textarea::placeholder {
+  color: #a9a19a;
+}
+
+.app-dark option {
+  background-color: #181722;
+  color: #f5f1ea;
+}
+
+.app-dark .shadow-sm,
+.app-dark .shadow-xl {
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+
+.app-dark .bg-red-50 {
+  background-color: #3b1f24;
+}
+
+.app-dark .text-red-700,
+.app-dark .text-red-800 {
+  color: #fecdd3;
+}
+
+.app-dark .bg-green-50 {
+  background-color: #1f3528;
+}
+
+.app-dark .text-green-700,
+.app-dark .text-green-800 {
+  color: #bbf7d0;
+}
+
+.app-dark .bg-amber-50,
+.app-dark .bg-amber-100 {
+  background-color: #3a2b16;
+}
+
+.app-dark .text-amber-800,
+.app-dark .text-amber-900 {
+  color: #fde68a;
+}
+
+.app-dark .bg-rose-50 {
+  background-color: #3b1f2a;
+}
+
+.app-dark .text-rose-800 {
+  color: #fecdd3;
+}
+
+.app-dark .bg-blue-50,
+.app-dark .bg-sky-50 {
+  background-color: #17263a;
+}
+
+.app-dark .text-blue-800,
+.app-dark .text-sky-800 {
+  color: #bfdbfe;
+}
+
+.app-dark .bg-emerald-50 {
+  background-color: #173326;
+}
+
+.app-dark .text-emerald-800 {
+  color: #a7f3d0;
+}
+
+.app-dark .bg-violet-50 {
+  background-color: #2b2440;
+}
+
+.app-dark .text-violet-800 {
+  color: #ddd6fe;
+}
+
+.app-dark button.bg-white,
+.app-dark button.bg-stone-50,
+.app-dark .bg-white,
+.app-dark .bg-stone-50 {
+  background-color: #12111a;
+  color: #f5f1ea;
+}
+
+.app-dark button.bg-white:hover,
+.app-dark button.bg-stone-50:hover {
+  background-color: #1c1b27;
+}
+
+.app-dark .hover\:bg-stone-50:hover,
+.app-dark .hover\:bg-stone-100:hover,
+.app-dark .hover\:bg-white:hover {
+  background-color: #1c1b27;
+}
+
+.app-dark .text-stone-400,
+.app-dark .text-stone-300 {
+  color: #bdb6aa;
+}

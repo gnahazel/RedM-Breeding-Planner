@@ -5,10 +5,13 @@ const STORAGE_KEYS = {
   horses: "redm-breeding-planner-horses",
   pairings: "redm-breeding-planner-pairings",
   language: "redm-breeding-planner-language",
+  theme: "redm-breeding-planner-theme",
 };
 
 const translations = {
   de: {
+    darkMode: "Dark mode",
+    lightMode: "Light mode",
     appLabel: "RedM Stable Tool",
     appTitle: "Breeding Planner",
     appSubtitle:
@@ -217,6 +220,8 @@ const translations = {
     },
   },
   en: {
+    darkMode: "Dark Mode",
+    lightMode: "Light Mode",
     appLabel: "RedM Stable Tool",
     appTitle: "Breeding Planner",
     appSubtitle:
@@ -2911,8 +2916,8 @@ function DataBackup({ horses, pairings, onImportBackup, t }) {
     <section className="border border-[#A8CDAA] bg-[#A8CDAA] p-5 shadow-sm">
       <div className="-mx-5 -mt-5 mb-4 flex flex-wrap items-start justify-between gap-4 border-b border-[#A8CDAA] bg-[#A8CDAA] px-5 py-4">
         <div>
-          <h2 className="text-xl font-semibold text-stone-900">{t.backupTitle}</h2>
-          <p className="text-sm text-stone-500">{t.backupDescription}</p>
+          <h2 className="text-xl font-semibold text-black">{t.backupTitle}</h2>
+          <p className="text-sm text-black">{t.backupDescription}</p>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -2940,7 +2945,7 @@ function DataBackup({ horses, pairings, onImportBackup, t }) {
         </div>
       </div>
 
-      <p className="mt-3 rounded-xl bg-[#cbffd2] px-3 py-2 text-sm text-stone-900">
+      <p className="mt-3 rounded-xl bg-[#cbffd2] px-3 py-2 text-sm text-black">
         {t.backupTip}
       </p>
     </section>
@@ -2953,6 +2958,11 @@ export default function App() {
   const [editingHorse, setEditingHorse] = useState(null);
   const [prefillHorse, setPrefillHorse] = useState(null);
   const [language, setLanguage] = useState(() => localStorage.getItem(STORAGE_KEYS.language) || "de");
+  const [theme, setTheme] = useState(
+    () => localStorage.getItem(STORAGE_KEYS.theme) || "light"
+  );
+
+  const isDarkMode = theme === "dark";
 
   const t = translations[language] || translations.de;
 
@@ -2967,6 +2977,10 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.language, language);
   }, [language]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.theme, theme);
+  }, [theme]);
 
   function saveHorse(horseToSave) {
     setHorses((current) => {
@@ -2983,6 +2997,10 @@ export default function App() {
 
     setEditingHorse(null);
     setPrefillHorse(null);
+  }
+
+  function toggleTheme() {
+    setTheme((current) => (current === "dark" ? "light" : "dark"));
   }
 
   function toggleAvailability(horseId) {
@@ -3101,7 +3119,11 @@ export default function App() {
   }
 
   return (
-    <main className="min-h-screen bg-white px-4 py-8 text-stone-900">
+    <main
+      className={`min-h-screen bg-white px-4 py-8 text-stone-900 ${
+        isDarkMode ? "app-dark" : ""
+      }`}
+    >
       <div className="mx-auto grid max-w-7xl gap-6">
         <header className="border border-[#1e1d23] bg-[#1e1d23] p-6 text-white shadow-sm">
           <div className="flex flex-wrap items-start justify-between gap-4">
@@ -3114,16 +3136,24 @@ export default function App() {
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setLanguage(language === "de" ? "en" : "de")}
-                className="rounded-xl border border-[#1e1d23] bg-white/80 px-4 py-2 text-sm font-semibold text-stone-900 hover:bg-white"
+                className="rounded-xl border border-[#1e1d23] bg-white/80 px-4 py-2 text-sm font-semibold text-black hover:bg-white"
               >
                 {t.switchLanguage}
               </button>
 
               <button
                 onClick={resetDemoData}
-                className="rounded-xl border border-[#1e1d23] bg-white/80 px-4 py-2 text-sm font-semibold text-stone-900 hover:bg-white"
+                className="rounded-xl border border-[#1e1d23] bg-white/80 px-4 py-2 text-sm font-semibold text-black hover:bg-white"
               >
                 {t.resetDemo}
+              </button>
+
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="rounded-xl border border-[#1e1d23] bg-white/80 px-4 py-2 text-sm font-semibold text-black hover:bg-white"
+              >
+                {isDarkMode ? t.lightMode : t.darkMode}
               </button>
             </div>
           </div>
@@ -3143,7 +3173,7 @@ export default function App() {
 
         <PedigreeViewer horses={horses} t={t} />
 
-        <div className="grid gap-6 xl:grid-cols-[1fr_1.1fr]">
+        <div className="grid gap-6">
           <HorseForm
             horses={horses}
             editingHorse={editingHorse}
