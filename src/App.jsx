@@ -148,6 +148,12 @@ const translations = {
     genes: "Gene",
     genesPlaceholder: "z. B. BL-G-D",
     geneModifiersHelp: "Maximal zwei Modifier werden als Modifier 1 und Modifier 2 gespeichert.",
+    geneBaseColor: "Base Color",
+    geneBaseColorPlaceholder: "Base auswählen",
+    geneModifiersOptional: "Modifiers optional",
+    genePatternOptional: "Pattern optional",
+    geneModifiersHelp: "Maximal zwei Modifier werden als Modifier 1 und Modifier 2 gespeichert.",
+    savedGeneCode: "Gespeicherter Gen-Code",
     savedGeneCode: "Gespeicherter Gen-Code",
     sire: "Vater",
     dam: "Mutter",
@@ -389,6 +395,12 @@ const translations = {
     genes: "Genes",
     genesPlaceholder: "e.g. BL-G-D",
     geneModifiersHelp: "A maximum of two modifiers are saved as Modifier 1 and Modifier 2.",
+    geneBaseColor: "Base Color",
+    geneBaseColorPlaceholder: "Select base",
+    geneModifiersOptional: "Modifiers optional",
+    genePatternOptional: "Pattern optional",
+    geneModifiersHelp: "A maximum of two modifiers are saved as Modifier 1 and Modifier 2.",
+    savedGeneCode: "Saved gene code",
     savedGeneCode: "Saved gene code",
     sire: "Sire",
     dam: "Dam",
@@ -1466,8 +1478,11 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
   );
 
   return (
-    <form onSubmit={handleSubmit} className="border border-black bg-transparent p-5 shadow-sm">
-      <div className="-mx-5 -mt-5 mb-5 flex items-start justify-between gap-4 border-b border-[#363542] bg-[#363542] px-5 py-4">
+    <form
+      onSubmit={handleSubmit}
+      className="border border-black bg-transparent p-5 shadow-sm"
+    >
+      <div className="-mx-5 -mt-5 mb-6 flex items-start justify-between gap-4 border-b border-[#363542] bg-[#363542] px-5 py-4">
         <div>
           <h2 className="text-xl font-semibold text-white">
             {editingHorse ? t.editHorse : t.addHorse}
@@ -1485,314 +1500,345 @@ function HorseForm({ horses, editingHorse, prefillHorse, onSaveHorse, onCancelEd
           >
             {editingHorse ? t.cancel : t.removePreparedFoal}
           </button>
-      )}
+        )}
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2">
-        <label className="grid gap-1 text-sm font-medium text-stone-700">
-          {t.name} *
-          <input
-            value={form.name}
-            onChange={(event) => updateField("name", event.target.value)}
-            className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
-            placeholder={t.namePlaceholder}
-          />
-        </label>
+      <div className="grid gap-8">
+        {/* Basic info */}
+        <div className="grid gap-x-3 gap-y-5 md:grid-cols-2">
+          <label className="grid gap-1 text-sm font-medium text-stone-700">
+            {t.name} *
+            <input
+              value={form.name}
+              onChange={(event) => updateField("name", event.target.value)}
+              className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
+              placeholder={t.namePlaceholder}
+            />
+          </label>
 
-        <label className="grid gap-1 text-sm font-medium text-stone-700">
-          {t.sex}
-          <select
-            value={form.sex}
-            onChange={(event) => updateField("sex", event.target.value)}
-            className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
-          >
-            <option value="stallion">{t.sexLabels.stallion}</option>
-            <option value="mare">{t.sexLabels.mare}</option>
-            <option value="gelding">{t.sexLabels.gelding}</option>
-          </select>
-        </label>
-
-        <label className="grid gap-1 text-sm font-medium text-stone-700">
-          {t.breed}
-          <input
-            value={form.breed}
-            onChange={(event) => updateField("breed", event.target.value)}
-            className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
-            placeholder={t.breedPlaceholder}
-          />
-        </label>
-
-        <label className="grid gap-1 text-sm font-medium text-stone-700">
-          {t.breedType}
-          <select
-            value={form.breedType}
-            onChange={(event) => updateField("breedType", event.target.value)}
-            className="rounded-xl border border-stone-300 bg-white px-3 py-2 font-normal outline-none focus:border-stone-900"
-          >
-            <option value="purebred">{t.purebred}</option>
-            <option value="crossbred">{t.crossbred}</option>
-          </select>
-        </label>
-
-        <label className="grid gap-1 text-sm font-medium text-stone-700 md:col-span-2">
-          {t.personality}
-          <input
-            value={form.personality}
-            onChange={(event) => updateField("personality", event.target.value)}
-            placeholder={t.personalityPlaceholder}
-            className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
-          />
-        </label>
-
-        <label className="grid gap-1 text-sm font-medium text-stone-700 md:col-span-2">
-          {t.color}
-          <input
-            value={form.color}
-            onChange={(event) => updateField("color", event.target.value)}
-            className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
-            placeholder={t.colorPlaceholder}
-          />
-        </label>
-
-        <div className="grid gap-3 md:col-span-2">
-
-        <label className="grid gap-1 text-sm font-medium text-stone-700">
-          Base Color *
-          <select
-            value={form.geneBaseColor}
-            onChange={(event) => updateField("geneBaseColor", event.target.value)}
-            className="rounded-xl border border-stone-300 bg-white px-3 py-2 font-normal outline-none focus:border-stone-900"
-            required
-          >
-            <option value="">Select base</option>
-            {GENE_BASE_COLOR_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <div className="grid gap-2">
-          <p className="text-sm font-medium text-stone-700">Modifiers (optional)</p>
-
-          <div className="flex flex-wrap gap-2">
-            {GENE_MODIFIER_OPTIONS.map((modifier) => {
-              const isSelected = selectedModifiers().includes(modifier);
-
-              return (
-                <button
-                  key={modifier}
-                  type="button"
-                  onClick={() => toggleModifier(modifier)}
-                  className={`rounded-lg border px-3 py-1 text-sm font-medium transition ${
-                    isSelected
-                      ? "border-[#4f4d63] bg-[#4f4d63] text-white"
-                      : "border-stone-300 bg-white text-stone-700 hover:bg-stone-100"
-                  }`}
-                >
-                  {modifier}
-                </button>
-              );
-            })}
-          </div>
-
-          <p className="text-xs text-stone-500">
-            {t.geneModifiersHelp}
-          </p>
-        </div>
-
-        <div className="grid gap-2">
-          <p className="text-sm font-medium text-stone-700">Pattern (optional)</p>
-
-          <div className="flex flex-wrap gap-2">
-            {GENE_PATTERN_OPTIONS.map((pattern) => {
-              const isSelected = form.genePattern === pattern;
-
-              return (
-                <button
-                  key={pattern}
-                  type="button"
-                  onClick={() => togglePattern(pattern)}
-                  className={`rounded-lg border px-3 py-1 text-sm font-medium transition ${
-                    isSelected
-                      ? "border-[#4f4d63] bg-[#4f4d63] text-white"
-                      : "border-stone-300 bg-white text-stone-700 hover:bg-stone-100"
-                  }`}
-                >
-                {pattern}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-700">
-          {t.savedGeneCode}:{" "}
-          <strong>{buildGeneCode(form) || "—"}</strong>
-        </div>
-      </div>
-
-      <div className="grid gap-3 md:col-span-2">
-        <h3 className="text-sm font-semibold text-stone-800">
-          {t.baseStats}
-        </h3>
-
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {BASE_STAT_FIELDS.map((stat) => (
-            <label
-              key={stat.key}
-              className="grid gap-1 text-sm font-medium text-stone-700"
+          <label className="grid gap-1 text-sm font-medium text-stone-700">
+            {t.sex}
+            <select
+              value={form.sex}
+              onChange={(event) => updateField("sex", event.target.value)}
+              className="rounded-xl border border-stone-300 bg-white px-3 py-2 font-normal outline-none focus:border-stone-900"
             >
-              {t[stat.labelKey]}
+              <option value="stallion">{t.sexLabels.stallion}</option>
+              <option value="mare">{t.sexLabels.mare}</option>
+              <option value="gelding">{t.sexLabels.gelding}</option>
+            </select>
+          </label>
+
+          <label className="grid gap-1 text-sm font-medium text-stone-700">
+            {t.breed}
+            <input
+              value={form.breed}
+              onChange={(event) => updateField("breed", event.target.value)}
+              className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
+              placeholder={t.breedPlaceholder}
+            />
+          </label>
+
+          <label className="grid gap-1 text-sm font-medium text-stone-700">
+            {t.breedType}
+            <select
+              value={form.breedType}
+              onChange={(event) => updateField("breedType", event.target.value)}
+              className="rounded-xl border border-stone-300 bg-white px-3 py-2 font-normal outline-none focus:border-stone-900"
+            >
+              <option value="purebred">{t.purebred}</option>
+              <option value="crossbred">{t.crossbred}</option>
+            </select>
+          </label>
+
+          <label className="grid gap-1 text-sm font-medium text-stone-700 md:col-span-2">
+            {t.personality}
+            <input
+              value={form.personality}
+              onChange={(event) => updateField("personality", event.target.value)}
+              placeholder={t.personalityPlaceholder}
+              className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
+            />
+          </label>
+
+          <label className="grid gap-1 text-sm font-medium text-stone-700">
+            {t.color}
+            <input
+              value={form.color}
+              onChange={(event) => updateField("color", event.target.value)}
+              className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
+              placeholder={t.colorPlaceholder}
+            />
+          </label>
+
+          <label className="grid gap-1 text-sm font-medium text-stone-700">
+            {t.geneBaseColor} *
+            <select
+              value={form.geneBaseColor}
+              onChange={(event) =>
+                updateField("geneBaseColor", event.target.value)
+              }
+              className="rounded-xl border border-stone-300 bg-white px-3 py-2 font-normal outline-none focus:border-stone-900"
+              required
+            >
+              <option value="">{t.geneBaseColorPlaceholder}</option>
+              {GENE_BASE_COLOR_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        {/* Genes */}
+        <div className="grid gap-4">
+          <div className="grid gap-x-3 gap-y-5 md:grid-cols-2">
+            <div className="grid gap-2">
+              <p className="text-sm font-medium text-stone-700">
+                {t.geneModifiersOptional}
+              </p>
+
+              <div className="flex flex-wrap gap-2">
+                {GENE_MODIFIER_OPTIONS.map((modifier) => {
+                  const isSelected = selectedModifiers().includes(modifier);
+
+                  return (
+                    <button
+                      key={modifier}
+                      type="button"
+                      onClick={() => toggleModifier(modifier)}
+                      className={`rounded-lg border px-3 py-1 text-sm font-medium transition ${
+                        isSelected
+                          ? "border-[#4f4d63] bg-[#4f4d63] text-white"
+                          : "border-stone-300 bg-white text-stone-700 hover:bg-stone-100"
+                      }`}
+                    >
+                      {modifier}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <p className="text-xs text-stone-500">{t.geneModifiersHelp}</p>
+            </div>
+
+            <div className="grid gap-2">
+              <p className="text-sm font-medium text-stone-700">
+                {t.genePatternOptional}
+              </p>
+
+              <div className="flex flex-wrap gap-2">
+                {GENE_PATTERN_OPTIONS.map((pattern) => {
+                  const isSelected = form.genePattern === pattern;
+
+                  return (
+                    <button
+                      key={pattern}
+                      type="button"
+                      onClick={() => togglePattern(pattern)}
+                      className={`rounded-lg border px-3 py-1 text-sm font-medium transition ${
+                        isSelected
+                          ? "border-[#4f4d63] bg-[#4f4d63] text-white"
+                          : "border-stone-300 bg-white text-stone-700 hover:bg-stone-100"
+                      }`}
+                    >
+                      {pattern}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-700">
+            {t.savedGeneCode}: <strong>{buildGeneCode(form) || "—"}</strong>
+          </div>
+        </div>
+
+        {/* Base stats */}
+        <div className="grid gap-4">
+          <h3 className="text-sm font-semibold text-stone-800">
+            {t.baseStats}
+          </h3>
+
+          <div className="grid gap-x-3 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
+            {BASE_STAT_FIELDS.map((stat) => (
+              <label
+                key={stat.key}
+                className="grid gap-1 text-sm font-medium text-stone-700"
+              >
+                {t[stat.labelKey]}
+                <select
+                  value={form.baseStats?.[stat.key] || "1"}
+                  onChange={(event) =>
+                    updateBaseStat(stat.key, event.target.value)
+                  }
+                  className="rounded-xl border border-stone-300 bg-white px-3 py-2 font-normal outline-none focus:border-stone-900"
+                >
+                  {STAT_VALUE_OPTIONS.map((value) => (
+                    <option key={value} value={value}>
+                      {value}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Parents and ownership */}
+        <div className="grid gap-5">
+          <div className="grid gap-x-3 gap-y-5 md:grid-cols-2">
+            <label className="grid gap-1 text-sm font-medium text-stone-700">
+              {t.sire}
               <select
-                value={form.baseStats?.[stat.key] || "1"}
-                onChange={(event) => updateBaseStat(stat.key, event.target.value)}
+                value={form.sireId}
+                onChange={(event) => updateField("sireId", event.target.value)}
                 className="rounded-xl border border-stone-300 bg-white px-3 py-2 font-normal outline-none focus:border-stone-900"
               >
-                {STAT_VALUE_OPTIONS.map((value) => (
-                  <option key={value} value={value}>
-                    {value}
+                <option value="">{t.unknown}</option>
+                {possibleSires.map((horse) => (
+                  <option key={horse.id} value={horse.id}>
+                    {horse.name}
                   </option>
                 ))}
               </select>
             </label>
-          ))}
-        </div>
-      </div>
 
-        <label className="grid gap-1 text-sm font-medium text-stone-700">
-          {t.owner}
-          <input
-            value={form.owner}
-            onChange={(event) => updateField("owner", event.target.value)}
-            className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
-            placeholder={t.ownerPlaceholder}
-          />
-        </label>
+            <label className="grid gap-1 text-sm font-medium text-stone-700">
+              {t.dam}
+              <select
+                value={form.damId}
+                onChange={(event) => updateField("damId", event.target.value)}
+                className="rounded-xl border border-stone-300 bg-white px-3 py-2 font-normal outline-none focus:border-stone-900"
+              >
+                <option value="">{t.unknown}</option>
+                {possibleDams.map((horse) => (
+                  <option key={horse.id} value={horse.id}>
+                    {horse.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
 
-        <label className="grid gap-1 text-sm font-medium text-stone-700">
-          {t.sire}
-          <select
-            value={form.sireId}
-            onChange={(event) => updateField("sireId", event.target.value)}
-            className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
-          >
-            <option value="">{t.unknown}</option>
-            {possibleSires.map((horse) => (
-              <option key={horse.id} value={horse.id}>{horse.name}</option>
-            ))}
-          </select>
-        </label>
-
-        <label className="grid gap-1 text-sm font-medium text-stone-700">
-          {t.dam}
-          <select
-            value={form.damId}
-            onChange={(event) => updateField("damId", event.target.value)}
-            className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
-          >
-            <option value="">{t.unknown}</option>
-            {possibleDams.map((horse) => (
-              <option key={horse.id} value={horse.id}>{horse.name}</option>
-            ))}
-          </select>
-        </label>
-
-        <label className="flex items-center gap-2 rounded-xl border border-stone-200 px-3 py-2 text-sm font-medium text-stone-700">
-          <input
-            type="checkbox"
-            checked={form.availableForBreeding}
-            onChange={(event) => updateField("availableForBreeding", event.target.checked)}
-            className="h-4 w-4"
-          />
-          {t.availableForBreeding}
-        </label>
-      </div>
-
-      <label className="grid gap-1 text-sm font-medium text-stone-700">
-        {t.ownershipStatus}
-        <select
-          value={form.ownershipStatus}
-          onChange={(event) => updateOwnershipStatus(event.target.value)}
-          className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
-        >
-          <option value="owned">{t.ownershipOwned}</option>
-          <option value="notOwned">{t.ownershipNotOwned}</option>
-        </select>
-      </label>
-
-      {form.ownershipStatus === "owned" && (
-        <label className="flex items-center gap-3 rounded-xl border border-stone-300 px-3 py-2 text-sm font-medium text-stone-700">
-          <input
-            type="checkbox"
-            checked={Boolean(form.forSale)}
-            onChange={(event) => updateField("forSale", event.target.checked)}
-            className="h-4 w-4"
-          />
-          {t.forSale}
-        </label>
-      )}
-
-      {form.ownershipStatus === "notOwned" && (
-        <label className="grid gap-1 text-sm font-medium text-stone-700">
-          {t.soldFor}
-          <input
-            value={form.soldFor}
-            onChange={(event) => updateField("soldFor", event.target.value)}
-            placeholder={t.soldForPlaceholder}
-            className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
-          />
-        </label>
-      )}
-
-      <div className="grid gap-2 md:col-span-2">
-        <p className="text-sm font-medium text-stone-700">{t.horseImage}</p>
-
-        {form.imageDataUrl && (
-          <img
-            src={form.imageDataUrl}
-            alt={form.name || t.horseImage}
-            className="max-h-56 w-full rounded-xl border border-stone-300 object-contain"
-          />
-        )}
-
-        <div className="flex flex-wrap gap-2">
-          <label className="w-fit cursor-pointer rounded-xl bg-[#4f4d63] px-4 py-2 text-sm font-semibold text-white hover:bg-[#6a6885]">
-            {t.uploadHorseImage}
+          <label className="grid gap-1 text-sm font-medium text-stone-700">
+            {t.owner}
             <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="hidden"
+              value={form.owner}
+              onChange={(event) => updateField("owner", event.target.value)}
+              className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
+              placeholder={t.ownerPlaceholder}
             />
           </label>
 
-          {form.imageDataUrl && (
-            <button
-              type="button"
-              onClick={() => updateField("imageDataUrl", "")}
-              className="rounded-xl bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100"
-            >
-              {t.removeHorseImage}
-            </button>
-          )}
+          <div className="flex flex-wrap items-end gap-3">
+            <label className="grid w-full gap-1 text-sm font-medium text-stone-700 sm:w-72">
+              {t.ownershipStatus}
+              <select
+                value={form.ownershipStatus}
+                onChange={(event) => updateOwnershipStatus(event.target.value)}
+                className="rounded-xl border border-stone-300 bg-white px-3 py-2 font-normal outline-none focus:border-stone-900"
+              >
+                <option value="owned">{t.ownershipOwned}</option>
+                <option value="notOwned">{t.ownershipNotOwned}</option>
+              </select>
+            </label>
+
+            <label className="flex w-fit items-center gap-3 rounded-xl border border-stone-300 px-3 py-2 text-sm font-medium text-stone-700">
+              <input
+                type="checkbox"
+                checked={Boolean(form.availableForBreeding)}
+                onChange={(event) =>
+                  updateField("availableForBreeding", event.target.checked)
+                }
+                className="h-4 w-4"
+              />
+              {t.availableForBreeding}
+            </label>
+
+            {form.ownershipStatus === "owned" && (
+              <label className="flex w-fit items-center gap-3 rounded-xl border border-stone-300 px-3 py-2 text-sm font-medium text-stone-700">
+                <input
+                  type="checkbox"
+                  checked={Boolean(form.forSale)}
+                  onChange={(event) =>
+                    updateField("forSale", event.target.checked)
+                  }
+                  className="h-4 w-4"
+                />
+                {t.forSale}
+              </label>
+            )}
+
+            {form.ownershipStatus === "notOwned" && (
+              <label className="grid w-full gap-1 text-sm font-medium text-stone-700 sm:w-56">
+                {t.soldFor}
+                <input
+                  value={form.soldFor}
+                  onChange={(event) => updateField("soldFor", event.target.value)}
+                  placeholder={t.soldForPlaceholder}
+                  className="rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
+                />
+              </label>
+            )}
+          </div>
         </div>
-      </div>        
 
-      <label className="mt-3 grid gap-1 text-sm font-medium text-stone-700">
-        {t.notes}
-        <textarea
-          value={form.notes}
-          onChange={(event) => updateField("notes", event.target.value)}
-          className="min-h-20 rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
-          placeholder={t.notesPlaceholder}
-        />
-      </label>
+        {/* Horse image */}
+        <div className="grid gap-2">
+          <p className="text-sm font-medium text-stone-700">{t.horseImage}</p>
 
-      <button className="mt-4 rounded-xl bg-[#4f4d63] px-4 py-2 text-sm font-semibold text-white hover:bg-[#6a6885]">
-        {editingHorse ? t.saveChanges : t.saveHorse}
-      </button>
+          {form.imageDataUrl && (
+            <img
+              src={form.imageDataUrl}
+              alt={form.name || t.horseImage}
+              className="max-h-56 w-full rounded-xl border border-stone-300 object-contain"
+            />
+          )}
+
+          <div className="flex flex-wrap gap-2">
+            <label className="w-fit cursor-pointer rounded-xl bg-[#4f4d63] px-4 py-2 text-sm font-semibold text-white hover:bg-[#6a6885]">
+              {t.uploadHorseImage}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+            </label>
+
+            {form.imageDataUrl && (
+              <button
+                type="button"
+                onClick={() => updateField("imageDataUrl", "")}
+                className="rounded-xl bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100"
+              >
+                {t.removeHorseImage}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Notes */}
+        <label className="grid gap-1 text-sm font-medium text-stone-700">
+          {t.notes}
+          <textarea
+            value={form.notes}
+            onChange={(event) => updateField("notes", event.target.value)}
+            className="min-h-20 rounded-xl border border-stone-300 px-3 py-2 font-normal outline-none focus:border-stone-900"
+            placeholder={t.notesPlaceholder}
+          />
+        </label>
+
+        <button
+          type="submit"
+          className="w-fit rounded-xl bg-[#4f4d63] px-4 py-2 text-sm font-semibold text-white hover:bg-[#6a6885]"
+        >
+          {editingHorse ? t.saveChanges : t.saveHorse}
+        </button>
+      </div>
     </form>
   );
 }
@@ -2332,15 +2378,15 @@ function HorseSubGroup({
 }
 
 const SEX_BADGE_CLASSES = {
-  stallion: "border-orange-500 bg-orange-200 text-stone",
-  mare: "border-violet-500 bg-violet-200 text-stone",
-  gelding: "border-grey-500 bg-grey-200 text-stone",
+  stallion: "border-orange-500 bg-orange-200 text-stone-900",
+  mare: "border-violet-500 bg-violet-200 text-stone-900",
+  gelding: "border-grey-500 bg-grey-200 text-stone-900",
 };
 
 const BASE_GENE_BADGE_CLASSES = {
-  R: "border-red-300 bg-red-300 text-white-800",
-  BL: "border-stone-300 bg-stone-300 text-white-800",
-  B: "border-amber-300 bg-amber-300 text-white-800",
+  R: "border-red-300 bg-red-300 !text-stone-900",
+  BL: "border-stone-300 bg-stone-300 !text-stone-900",
+  B: "border-amber-300 bg-amber-300 !text-stone-900",
 };
 
 const MODIFIER_BADGE_CLASSES = "border-sky-50 bg-sky-50 text-sky-800";
@@ -2349,7 +2395,9 @@ const UNKNOWN_BADGE_CLASSES = "border-stone-50 bg-stone-50 text-stone-500";
 
 function Badge({ children, className = "" }) {
   return (
-    <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold ${className}`}>
+    <span
+      className={`horse-badge inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold shadow-sm ${className}`}
+    >
       {children}
     </span>
   );
@@ -2445,8 +2493,8 @@ function HorseCard({ horse, horses, onToggleAvailability, onEditHorse, onDeleteH
             onClick={() => onToggleAvailability(horse.id)}
             className={`rounded-full px-3 py-1 text-xs font-semibold ${
               horse.availableForBreeding
-                ? "bg-green-100 text-green-800"
-                : "bg-stone-100 text-stone-600"
+                ? "bg-green-100 !text-green-800 hover:bg-green-200"
+                : "bg-stone-100 !text-stone-600 hover:bg-stone-200"
             }`}
           >
             {horse.availableForBreeding ? t.availableBadge : t.unavailableBadge}

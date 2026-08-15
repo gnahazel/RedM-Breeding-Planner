@@ -172,3 +172,84 @@
   background-color: #12111a;
   border-color: #2f2d3a;
 }
+
+.app-dark .horse-badge {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+/* Hengst / sandbraun-orange */
+.app-dark .horse-badge.bg-orange-50,
+.app-dark .horse-badge.bg-amber-50,
+.app-dark .horse-badge.bg-amber-100 {
+  background-color: #3a2818;
+  border-color: #b98543;
+  color: #ffd7a3;
+}
+
+/* Stute / rosé */
+.app-dark .horse-badge.bg-rose-50 {
+  background-color: #3a1f2a;
+  border-color: #b76b87;
+  color: #ffc9da;
+}
+
+/* Wallach / lavendel */
+.app-dark .horse-badge.bg-violet-50 {
+  background-color: #2a2240;
+  border-color: #8b7ad1;
+  color: #ddd6fe;
+}
+
+/* Base R */
+.app-dark .horse-badge.bg-red-50 {
+  background-color: #3a1d20;
+  border-color: #c96c72;
+  color: #ffd0d3;
+}
+
+/* Base BL / grau-schwarz */
+.app-dark .horse-badge.bg-stone-50,
+.app-dark .horse-badge.bg-stone-100 {
+  background-color: #2a2931;
+  border-color: #77717f;
+  color: #eee9e2;
+}
+
+/* Modifier */
+.app-dark .horse-badge.bg-sky-50,
+.app-dark .horse-badge.bg-blue-50 {
+  background-color: #17283d;
+  border-color: #5da3d8;
+  color: #c8e7ff;
+}
+
+/* Pattern */
+.app-dark .horse-badge.bg-emerald-50,
+.app-dark .horse-badge.bg-green-50 {
+  background-color: #163328;
+  border-color: #5abf91;
+  color: #c8f7df;
+}
+
+/* Base B / gold */
+.app-dark .horse-badge.bg-yellow-100 {
+  background-color: #3a2d12;
+  border-color: #d6a83d;
+  color: #ffe7a3;
+}
+
+.app-dark .horse-card p,
+.app-dark .horse-card dd,
+.app-dark .horse-card dt {
+  color: #c9c2b8;
+}
+
+.app-dark .horse-card span:not(.horse-badge) {
+  color: #c9c2b8;
+}
+
+.app-dark .horse-badge.text-stone-900,
+.app-dark .horse-badge.text-stone-800,
+.app-dark .horse-badge.text-stone-700 {
+  color: #1c1917 !important;
+}
